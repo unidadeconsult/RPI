@@ -48,6 +48,36 @@ function columnFor(x: number): Column {
   return "RIGHT";
 }
 
+const RPI_NUMBER_PATTERN = /Consulta Livre na RPI\s+(\d+)/i;
+
+/**
+ * Detecta o numero da RPI a partir do texto do cabecalho do relatorio
+ * APOL ("Consulta Livre na RPI NNNN"). O arquivo nao traz a data oficial
+ * de publicacao -- isso deve ser confirmado manualmente pelo usuario na
+ * tela de importacao (secao 5).
+ */
+export function detectRpiNumberFromItems(items: PositionedTextItem[]): string | null {
+  // Cada palavra chega como um item de texto separado (ex.: "Consulta",
+  // "Livre", "na", "RPI", "2888"); e preciso juntar os itens da mesma
+  // linha (pagina+y) antes de aplicar o regex.
+  const byLine = new Map<string, PositionedTextItem[]>();
+  for (const item of items) {
+    const key = `${item.page}|${item.y}`;
+    if (!byLine.has(key)) byLine.set(key, []);
+    byLine.get(key)!.push(item);
+  }
+
+  for (const lineItems of byLine.values()) {
+    const text = [...lineItems]
+      .sort((a, b) => a.x - b.x)
+      .map((i) => i.text)
+      .join(" ");
+    const match = text.match(RPI_NUMBER_PATTERN);
+    if (match) return match[1];
+  }
+  return null;
+}
+
 /** Separa "NCL(12) 25 I270-3881" (ou "/ I395") em classes + despacho. */
 function splitClassesAndDispatch(rightText: string | null): {
   classesRaw: string | null;

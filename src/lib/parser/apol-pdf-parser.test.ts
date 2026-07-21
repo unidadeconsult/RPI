@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { PositionedTextItem } from "./apol-pdf-text";
 import {
+  detectRpiNumberFromItems,
   extractHolderUfs,
   groupApolPdfRecords,
   parseNiceClasses,
@@ -257,5 +258,30 @@ describe("extractHolderUfs", () => {
       dispatchCode: "I106",
     };
     expect(extractHolderUfs(record).sort()).toEqual(["PE", "SC", "SP"]);
+  });
+});
+
+describe("detectRpiNumberFromItems", () => {
+  it("detecta o numero da RPI no cabecalho do relatorio APOL", () => {
+    const items: PositionedTextItem[] = [
+      plain(1, 200, 787.92, "Consulta Livre na RPI 2888"),
+    ];
+    expect(detectRpiNumberFromItems(items)).toBe("2888");
+  });
+
+  it("retorna null quando o cabecalho nao e encontrado", () => {
+    const items: PositionedTextItem[] = [plain(1, 200, 787.92, "texto qualquer")];
+    expect(detectRpiNumberFromItems(items)).toBeNull();
+  });
+
+  it("regressao real: cada palavra chega como um item separado na mesma linha", () => {
+    const items: PositionedTextItem[] = [
+      bold(1, 56.14, 787.92, "Consulta"),
+      bold(1, 103.26, 787.92, "Livre"),
+      bold(1, 131.44, 787.92, "na"),
+      bold(1, 146.94, 787.92, "RPI"),
+      bold(1, 168.57, 787.92, "2888"),
+    ];
+    expect(detectRpiNumberFromItems(items)).toBe("2888");
   });
 });

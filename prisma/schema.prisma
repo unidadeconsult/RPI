@@ -386,7 +386,7 @@ model Party {
 model Attorney {
   id             String   @id @default(cuid())
   nameRaw        String
-  normalizedName String
+  normalizedName String   @unique
   createdAt      DateTime @default(now())
 
   publicationLinks PublicationAttorney[]
