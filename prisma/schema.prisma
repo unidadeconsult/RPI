@@ -1,0 +1,888 @@
+// Schema de dados do RPI Manager — Fase 1 (Fundação)
+// Entidades derivadas da seção 27 do escopo do projeto.
+// Campos de extração (XML/PDF) ainda não são definitivos: serão ajustados
+// na Fase 2 após a análise de uma RPI real fornecida pelo usuário.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum RoleName {
+  ADMINISTRADOR
+  ANALISTA
+  CONSULTA
+}
+
+enum RpiFileType {
+  XML
+  ZIP
+  PDF
+}
+
+enum ExtractionSource {
+  XML_ESTRUTURADO
+  PDF_TEXTO
+  PDF_OCR
+}
+
+enum ConfidenceLevel {
+  ALTA
+  MEDIA
+  BAIXA
+}
+
+enum ReviewStatus {
+  NAO_REVISADO
+  REVISADO
+}
+
+enum AttorneyMatchStatus {
+  CONFIRMADO
+  DUVIDOSO_REVISAR
+}
+
+enum PeStatus {
+  NAO_APLICAVEL
+  CONFIRMADO_PE
+  CONFIRMADO_OUTRO_ESTADO
+  NAO_CONFIRMADO_REVISAR
+}
+
+enum DispatchCategory {
+  DEFERIMENTO
+  PUBLICACAO
+  OPOSICAO
+  NULIDADE
+  CADUCIDADE
+  INDEFERIMENTO
+  ARQUIVAMENTO
+  OUTROS_NAO_CLASSIFICADO
+}
+
+enum UrgencyLevel {
+  BAIXA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+enum DeadlineCountingType {
+  CORRIDOS
+  UTEIS
+}
+
+enum DeadlineStatus {
+  SUGERIDO_CONFERIR
+  CONFIRMADO
+  VENCIDO
+  CANCELADO
+}
+
+enum PartyRole {
+  TITULAR
+  REQUERENTE
+  DEPOSITANTE
+  INTERESSADO
+  OUTRO
+}
+
+enum PersonType {
+  PF
+  PJ
+}
+
+enum TaskPriority {
+  BAIXA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+enum TaskStatus {
+  NOVO
+  EM_CONFERENCIA
+  PROVIDENCIA_DEFINIDA
+  AGUARDANDO_CLIENTE
+  EM_EXECUCAO
+  AGUARDANDO_PAGAMENTO
+  PROTOCOLADO
+  CONCLUIDO
+  SEM_PROVIDENCIA
+  CANCELADO
+}
+
+enum DocumentType {
+  PROCURACAO
+  CONTRATO_SOCIAL
+  PARECER
+  PETICAO
+  OPOSICAO
+  MANIFESTACAO
+  RECURSO
+  BOLETO
+  COMPROVANTE_PAGAMENTO
+  PROTOCOLO
+  EVIDENCIA_USO
+  CERTIFICADO
+  EMAIL
+  DIVERSO
+}
+
+enum DocumentStatus {
+  ATIVO
+  SUBSTITUIDO
+  ARQUIVADO
+}
+
+enum MessageChannel {
+  WHATSAPP
+  EMAIL
+  INTERNO
+}
+
+enum MessageTemplateCategory {
+  COMUNICACAO_PUBLICACAO
+  COMUNICACAO_OPOSICAO
+  COMUNICACAO_DEFERIMENTO
+  COBRANCA_PAGAMENTO
+  PEDIDO_DOCUMENTOS
+  PEDIDO_PROVAS_USO
+  COMUNICACAO_INDEFERIMENTO
+  ACOMPANHAMENTO_PRAZO
+  LEMBRETE_INTERNO
+  CONCLUSAO_PROCEDIMENTO
+}
+
+enum MessageDraftStatus {
+  RASCUNHO
+  ENVIADO_MANUALMENTE
+  CANCELADO
+}
+
+enum CalendarEventType {
+  PRAZO
+  TAREFA
+  PAGAMENTO
+  REUNIAO
+  SOLICITACAO_CLIENTE
+  MANIFESTACAO
+  RECURSO
+  EXIGENCIA
+  RENOVACAO
+  INTERNO
+}
+
+enum SimilarityMatchType {
+  IDENTICA
+  ALTA
+  MEDIA
+  BAIXA
+  REVISAR
+}
+
+enum SimilarityStatus {
+  NOVO
+  RELEVANTE
+  FALSO_POSITIVO
+}
+
+enum ImportErrorSeverity {
+  ERRO
+  AVISO
+}
+
+enum RpiEditionStatus {
+  IMPORTADA
+  SUBSTITUIDA
+}
+
+// ---------------------------------------------------------------------------
+// Usuários e perfis
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         RoleName @default(CONSULTA)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  importedRpiEditions        RpiEdition[]           @relation("RpiEditionImportedBy")
+  uploadedRpiFiles           RpiFile[]              @relation("RpiFileUploadedBy")
+  confirmedRpiComparisons    RpiEditionComparison[] @relation("RpiEditionComparisonConfirmedBy")
+  updatedDispatchRules       DispatchRule[]         @relation("DispatchRuleUpdatedBy")
+  importedPublications       Publication[]          @relation("PublicationImportedBy")
+  responsiblePublications    Publication[]          @relation("PublicationResponsible")
+  reviewedPublications       Publication[]          @relation("PublicationReviewer")
+  confirmedDeadlines         Deadline[]             @relation("DeadlineConfirmedBy")
+  internalClients            Client[]               @relation("ClientInternalResponsible")
+  responsibleClientProcesses ClientProcess[]        @relation("ClientProcessResponsible")
+  tasksAsResponsible         Task[]                 @relation("TaskResponsible")
+  tasksAsReviewer            Task[]                 @relation("TaskReviewer")
+  taskComments               TaskComment[]
+  uploadedDocuments          Document[]             @relation("DocumentUploadedBy")
+  uploadedDocumentVersions   DocumentVersion[]      @relation("DocumentVersionUploadedBy")
+  updatedMessageTemplates    MessageTemplate[]      @relation("MessageTemplateUpdatedBy")
+  preparedMessageDrafts      MessageDraft[]         @relation("MessageDraftPreparedBy")
+  confirmedMessageDrafts     MessageDraft[]         @relation("MessageDraftSentConfirmedBy")
+  responsibleCalendarEvents  CalendarEvent[]        @relation("CalendarEventResponsible")
+  createdMonitoredTrademarks MonitoredTrademark[]   @relation("MonitoredTrademarkCreatedBy")
+  reviewedSimilarityMatches  SimilarityMatch[]      @relation("SimilarityMatchReviewedBy")
+  createdAttorneyAliases     AttorneyNameAlias[]    @relation("AttorneyNameAliasCreatedBy")
+  savedSearches              SavedSearch[]
+  auditLogs                  AuditLog[]
+  notifications              Notification[]
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// RPI — edições e arquivos importados
+// ---------------------------------------------------------------------------
+
+model RpiEdition {
+  id                String           @id @default(cuid())
+  number            String
+  publicationDate   DateTime
+  section           String           @default("Marcas")
+  status            RpiEditionStatus @default(IMPORTADA)
+  versionLabel      Int              @default(1)
+  previousVersionId String?
+  previousVersion   RpiEdition?      @relation("RpiEditionVersionChain", fields: [previousVersionId], references: [id])
+  nextVersions      RpiEdition[]     @relation("RpiEditionVersionChain")
+  importedById      String?
+  importedBy        User?            @relation("RpiEditionImportedBy", fields: [importedById], references: [id])
+  importedAt        DateTime         @default(now())
+  notes             String?
+
+  files                 RpiFile[]
+  publications          Publication[]
+  comparisonsAsPrevious RpiEditionComparison[] @relation("ComparisonPrevious")
+  comparisonsAsNew      RpiEditionComparison[] @relation("ComparisonNew")
+
+  @@unique([number, versionLabel])
+  @@map("rpi_editions")
+}
+
+model RpiFile {
+  id               String      @id @default(cuid())
+  rpiEditionId     String
+  rpiEdition       RpiEdition  @relation(fields: [rpiEditionId], references: [id])
+  fileType         RpiFileType
+  originalFilename String
+  storagePath      String
+  fileHash         String
+  sizeBytes        Int
+  containedInZip   Boolean     @default(false)
+  ocrUsed          Boolean     @default(false)
+  textExtractable  Boolean?
+  uploadedById     String?
+  uploadedBy       User?       @relation("RpiFileUploadedBy", fields: [uploadedById], references: [id])
+  createdAt        DateTime    @default(now())
+
+  publications Publication[]
+  importErrors ImportError[]
+
+  @@unique([fileHash])
+  @@map("rpi_files")
+}
+
+model RpiEditionComparison {
+  id                String     @id @default(cuid())
+  previousEditionId String
+  previousEdition   RpiEdition @relation("ComparisonPrevious", fields: [previousEditionId], references: [id])
+  newEditionId      String
+  newEdition        RpiEdition @relation("ComparisonNew", fields: [newEditionId], references: [id])
+  addedCount        Int
+  removedCount      Int
+  changedCount      Int
+  details           Json
+  confirmedById     String?
+  confirmedBy       User?      @relation("RpiEditionComparisonConfirmedBy", fields: [confirmedById], references: [id])
+  confirmedAt       DateTime?
+  createdAt         DateTime   @default(now())
+
+  @@map("rpi_edition_comparisons")
+}
+
+// ---------------------------------------------------------------------------
+// Processos e marcas
+// ---------------------------------------------------------------------------
+
+model Proceeding {
+  id            String   @id @default(cuid())
+  processNumber String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  trademarks      Trademark[]
+  publications    Publication[]
+  parties         Party[]
+  deadlines       Deadline[]
+  tasks           Task[]
+  documents       Document[]
+  clientProcesses ClientProcess[]
+  calendarEvents  CalendarEvent[]
+
+  @@map("proceedings")
+}
+
+model Trademark {
+  id               String     @id @default(cuid())
+  proceedingId     String
+  proceeding       Proceeding @relation(fields: [proceedingId], references: [id])
+  name             String
+  presentationType String?
+  nature           String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  classes                 TrademarkClass[]
+  clientProcesses         ClientProcess[]
+  monitoredMatchesTitular SimilarityMatch[] @relation("SimilarityMatchTrademark")
+
+  @@map("trademarks")
+}
+
+model TrademarkClass {
+  id                String    @id @default(cuid())
+  trademarkId       String
+  trademark         Trademark @relation(fields: [trademarkId], references: [id])
+  niceClass         String
+  specificationText String?
+
+  @@map("trademark_classes")
+}
+
+model Party {
+  id            String      @id @default(cuid())
+  publicationId String
+  publication   Publication @relation(fields: [publicationId], references: [id])
+  proceedingId  String
+  proceeding    Proceeding  @relation(fields: [proceedingId], references: [id])
+  role          PartyRole
+  name          String
+  cpfCnpj       String?
+
+  @@map("parties")
+}
+
+// ---------------------------------------------------------------------------
+// Procuradores
+// ---------------------------------------------------------------------------
+
+model Attorney {
+  id             String   @id @default(cuid())
+  nameRaw        String
+  normalizedName String
+  createdAt      DateTime @default(now())
+
+  publicationLinks PublicationAttorney[]
+  nameAliases      AttorneyNameAlias[]
+
+  @@map("attorneys")
+}
+
+// Variações cadastradas manualmente pelo administrador (seção 3),
+// ex.: "JANE G. VIEIRA" -> "JANE GLAUCIA VIEIRA".
+model AttorneyNameAlias {
+  id              String   @id @default(cuid())
+  attorneyId      String
+  attorney        Attorney @relation(fields: [attorneyId], references: [id])
+  aliasRaw        String
+  aliasNormalized String
+  active          Boolean  @default(true)
+  createdById     String?
+  createdBy       User?    @relation("AttorneyNameAliasCreatedBy", fields: [createdById], references: [id])
+  createdAt       DateTime @default(now())
+
+  @@map("attorney_name_aliases")
+}
+
+model PublicationAttorney {
+  id              String               @id @default(cuid())
+  publicationId   String
+  publication     Publication          @relation(fields: [publicationId], references: [id])
+  attorneyId      String
+  attorney        Attorney             @relation(fields: [attorneyId], references: [id])
+  isTargetMatch   Boolean              @default(false)
+  matchStatus     AttorneyMatchStatus?
+  confidenceLevel ConfidenceLevel?
+  sourceFieldTag  String?
+  sourceExcerpt   String?
+  createdAt       DateTime             @default(now())
+
+  @@map("publication_attorneys")
+}
+
+// ---------------------------------------------------------------------------
+// Códigos de despacho e regras de classificação (tabela editável)
+// ---------------------------------------------------------------------------
+
+model DispatchCode {
+  id                  String   @id @default(cuid())
+  code                String   @unique
+  officialDescription String?
+  active              Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  rule         DispatchRule?
+  publications Publication[]
+
+  @@map("dispatch_codes")
+}
+
+model DispatchRule {
+  id                      String           @id @default(cuid())
+  dispatchCodeId          String           @unique
+  dispatchCode            DispatchCode     @relation(fields: [dispatchCodeId], references: [id])
+  mainCategory            DispatchCategory @default(OUTROS_NAO_CLASSIFICADO)
+  subcategory             String?
+  suggestedProvidence     String?
+  urgencyLevel            UrgencyLevel     @default(MEDIA)
+  hasDeadline             Boolean          @default(false)
+  deadlineRuleDescription String?
+  requiredDocuments       String?
+  active                  Boolean          @default(true)
+  updatedAt               DateTime         @updatedAt
+  updatedById             String?
+  updatedBy               User?            @relation("DispatchRuleUpdatedBy", fields: [updatedById], references: [id])
+
+  @@map("dispatch_rules")
+}
+
+// ---------------------------------------------------------------------------
+// Publicações
+// ---------------------------------------------------------------------------
+
+model Publication {
+  id              String     @id @default(cuid())
+  rpiEditionId    String
+  rpiEdition      RpiEdition @relation(fields: [rpiEditionId], references: [id])
+  rpiFileId       String
+  rpiFile         RpiFile    @relation(fields: [rpiFileId], references: [id])
+  publicationHash String     @unique
+
+  proceedingId     String?
+  proceeding       Proceeding? @relation(fields: [proceedingId], references: [id])
+  processNumberRaw String?
+
+  dispatchCodeId         String?
+  dispatchCode           DispatchCode?    @relation(fields: [dispatchCodeId], references: [id])
+  dispatchDescriptionRaw String?
+  category               DispatchCategory @default(OUTROS_NAO_CLASSIFICADO)
+  subcategory            String?
+  categoryIsUnknownCode  Boolean          @default(false)
+
+  locationRaw     String?
+  locationUf      String?
+  peStatus        PeStatus @default(NAO_APLICAVEL)
+  peSourceExcerpt String?
+
+  sourceExcerpt      String?
+  sourceStructureRaw String?
+  pdfPageNumber      Int?
+  extractionSource   ExtractionSource
+  confidenceLevel    ConfidenceLevel
+  confidenceReason   String?
+
+  reviewStatus ReviewStatus @default(NAO_REVISADO)
+  reviewedById String?
+  reviewer     User?        @relation("PublicationReviewer", fields: [reviewedById], references: [id])
+  reviewedAt   DateTime?
+
+  suggestedProvidence String?
+  definedProvidence   String?
+  responsibleUserId   String?
+  responsible         User?         @relation("PublicationResponsible", fields: [responsibleUserId], references: [id])
+  priority            UrgencyLevel?
+
+  notes String?
+
+  importedById String?
+  importedBy   User?    @relation("PublicationImportedBy", fields: [importedById], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  previousVersionId String?
+  previousVersion   Publication?  @relation("PublicationVersionChain", fields: [previousVersionId], references: [id])
+  nextVersions      Publication[] @relation("PublicationVersionChain")
+
+  parties           Party[]
+  attorneyLinks     PublicationAttorney[]
+  deadlines         Deadline[]
+  tasks             Task[]
+  documents         Document[]
+  calendarEvents    CalendarEvent[]
+  similarityMatches SimilarityMatch[]
+
+  @@map("publications")
+}
+
+// ---------------------------------------------------------------------------
+// Prazos
+// ---------------------------------------------------------------------------
+
+model Deadline {
+  id                 String                @id @default(cuid())
+  publicationId      String
+  publication        Publication           @relation(fields: [publicationId], references: [id])
+  proceedingId       String
+  proceeding         Proceeding            @relation(fields: [proceedingId], references: [id])
+  eventLabel         String
+  publicationDate    DateTime
+  daysConfigured     Int?
+  countingType       DeadlineCountingType?
+  suggestedDate      DateTime?
+  dispatchRuleUsedId String?
+  status             DeadlineStatus        @default(SUGERIDO_CONFERIR)
+  confirmedDate      DateTime?
+  confirmedById      String?
+  confirmedBy        User?                 @relation("DeadlineConfirmedBy", fields: [confirmedById], references: [id])
+  confirmedAt        DateTime?
+  internalDate       DateTime?
+  notes              String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  tasks          Task[]
+  calendarEvents CalendarEvent[]
+
+  @@map("deadlines")
+}
+
+// ---------------------------------------------------------------------------
+// Clientes e carteira
+// ---------------------------------------------------------------------------
+
+model Client {
+  id                    String     @id @default(cuid())
+  name                  String
+  personType            PersonType
+  cpfCnpj               String?
+  phone                 String?
+  whatsapp              String?
+  email                 String?
+  address               String?
+  internalResponsibleId String?
+  internalResponsible   User?      @relation("ClientInternalResponsible", fields: [internalResponsibleId], references: [id])
+  notes                 String?
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  clientProcesses     ClientProcess[]
+  tasks               Task[]
+  documents           Document[]
+  messageDrafts       MessageDraft[]
+  calendarEvents      CalendarEvent[]
+  monitoredTrademarks MonitoredTrademark[]
+
+  @@map("clients")
+}
+
+model ClientProcess {
+  id                String     @id @default(cuid())
+  clientId          String
+  client            Client     @relation(fields: [clientId], references: [id])
+  proceedingId      String
+  proceeding        Proceeding @relation(fields: [proceedingId], references: [id])
+  trademarkId       String?
+  trademark         Trademark? @relation(fields: [trademarkId], references: [id])
+  responsibleUserId String?
+  responsibleUser   User?      @relation("ClientProcessResponsible", fields: [responsibleUserId], references: [id])
+  createdAt         DateTime   @default(now())
+
+  @@unique([clientId, proceedingId])
+  @@map("client_processes")
+}
+
+// ---------------------------------------------------------------------------
+// Tarefas
+// ---------------------------------------------------------------------------
+
+model Task {
+  id                  String       @id @default(cuid())
+  title               String
+  proceedingId        String?
+  proceeding          Proceeding?  @relation(fields: [proceedingId], references: [id])
+  clientId            String?
+  client              Client?      @relation(fields: [clientId], references: [id])
+  publicationId       String?
+  publication         Publication? @relation(fields: [publicationId], references: [id])
+  providenceSuggested String?
+  providenceDefined   String?
+  responsibleUserId   String?
+  responsibleUser     User?        @relation("TaskResponsible", fields: [responsibleUserId], references: [id])
+  reviewerUserId      String?
+  reviewerUser        User?        @relation("TaskReviewer", fields: [reviewerUserId], references: [id])
+  priority            TaskPriority @default(MEDIA)
+  internalDueDate     DateTime?
+  deadlineId          String?
+  deadline            Deadline?    @relation(fields: [deadlineId], references: [id])
+  checklist           Json?
+  status              TaskStatus   @default(NOVO)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  comments       TaskComment[]
+  documents      Document[]
+  calendarEvents CalendarEvent[]
+
+  @@map("tasks")
+}
+
+model TaskComment {
+  id        String   @id @default(cuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  body      String
+  createdAt DateTime @default(now())
+
+  @@map("task_comments")
+}
+
+// ---------------------------------------------------------------------------
+// Documentos
+// ---------------------------------------------------------------------------
+
+model Document {
+  id             String         @id @default(cuid())
+  name           String
+  type           DocumentType
+  proceedingId   String?
+  proceeding     Proceeding?    @relation(fields: [proceedingId], references: [id])
+  clientId       String?
+  client         Client?        @relation(fields: [clientId], references: [id])
+  publicationId  String?
+  publication    Publication?   @relation(fields: [publicationId], references: [id])
+  taskId         String?
+  task           Task?          @relation(fields: [taskId], references: [id])
+  description    String?
+  currentVersion Int            @default(1)
+  origin         String?
+  status         DocumentStatus @default(ATIVO)
+  filePath       String
+  fileHash       String
+  uploadedById   String?
+  uploadedBy     User?          @relation("DocumentUploadedBy", fields: [uploadedById], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  versions DocumentVersion[]
+
+  @@map("documents")
+}
+
+model DocumentVersion {
+  id            String   @id @default(cuid())
+  documentId    String
+  document      Document @relation(fields: [documentId], references: [id])
+  versionNumber Int
+  filePath      String
+  fileHash      String
+  changeNote    String?
+  uploadedById  String?
+  uploadedBy    User?    @relation("DocumentVersionUploadedBy", fields: [uploadedById], references: [id])
+  createdAt     DateTime @default(now())
+
+  @@unique([documentId, versionNumber])
+  @@map("document_versions")
+}
+
+// ---------------------------------------------------------------------------
+// Mensagens
+// ---------------------------------------------------------------------------
+
+model MessageTemplate {
+  id           String                  @id @default(cuid())
+  name         String
+  channel      MessageChannel
+  category     MessageTemplateCategory
+  bodyTemplate String
+  active       Boolean                 @default(true)
+  updatedAt    DateTime                @updatedAt
+  updatedById  String?
+  updatedBy    User?                   @relation("MessageTemplateUpdatedBy", fields: [updatedById], references: [id])
+
+  drafts MessageDraft[]
+
+  @@map("message_templates")
+}
+
+model MessageDraft {
+  id                String             @id @default(cuid())
+  templateId        String?
+  template          MessageTemplate?   @relation(fields: [templateId], references: [id])
+  channel           MessageChannel
+  recipient         String?
+  clientId          String?
+  client            Client?            @relation(fields: [clientId], references: [id])
+  body              String
+  status            MessageDraftStatus @default(RASCUNHO)
+  version           Int                @default(1)
+  preparedById      String?
+  preparedBy        User?              @relation("MessageDraftPreparedBy", fields: [preparedById], references: [id])
+  preparedAt        DateTime           @default(now())
+  sentConfirmedById String?
+  sentConfirmedBy   User?              @relation("MessageDraftSentConfirmedBy", fields: [sentConfirmedById], references: [id])
+  sentConfirmedAt   DateTime?
+
+  @@map("message_drafts")
+}
+
+// ---------------------------------------------------------------------------
+// Calendário
+// ---------------------------------------------------------------------------
+
+model CalendarEvent {
+  id                String            @id @default(cuid())
+  title             String
+  type              CalendarEventType
+  date              DateTime
+  allDay            Boolean           @default(true)
+  proceedingId      String?
+  proceeding        Proceeding?       @relation(fields: [proceedingId], references: [id])
+  clientId          String?
+  client            Client?           @relation(fields: [clientId], references: [id])
+  taskId            String?
+  task              Task?             @relation(fields: [taskId], references: [id])
+  deadlineId        String?
+  deadline          Deadline?         @relation(fields: [deadlineId], references: [id])
+  publicationId     String?
+  publication       Publication?      @relation(fields: [publicationId], references: [id])
+  responsibleUserId String?
+  responsibleUser   User?             @relation("CalendarEventResponsible", fields: [responsibleUserId], references: [id])
+  priority          TaskPriority?
+  confirmed         Boolean           @default(false)
+  notes             String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@map("calendar_events")
+}
+
+// ---------------------------------------------------------------------------
+// Monitoramento de marcas semelhantes
+// ---------------------------------------------------------------------------
+
+model MonitoredTrademark {
+  id             String   @id @default(cuid())
+  mainExpression String
+  relevantWords  String[]
+  variations     String[]
+  niceClasses    String[]
+  titular        String?
+  clientId       String?
+  client         Client?  @relation(fields: [clientId], references: [id])
+  ignoredTerms   String[]
+  minSimilarity  Float    @default(0.7)
+  active         Boolean  @default(true)
+  createdById    String?
+  createdBy      User?    @relation("MonitoredTrademarkCreatedBy", fields: [createdById], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  matches SimilarityMatch[]
+
+  @@map("monitored_trademarks")
+}
+
+model SimilarityMatch {
+  id                   String              @id @default(cuid())
+  monitoredTrademarkId String
+  monitoredTrademark   MonitoredTrademark  @relation(fields: [monitoredTrademarkId], references: [id])
+  publicationId        String
+  publication          Publication         @relation(fields: [publicationId], references: [id])
+  matchedTrademarkId   String?
+  matchedTrademark     Trademark?          @relation("SimilarityMatchTrademark", fields: [matchedTrademarkId], references: [id])
+  matchType            SimilarityMatchType
+  score                Float
+  matchedTerm          String?
+  niceClassMatch       Boolean             @default(false)
+  titularDiffers       Boolean             @default(true)
+  reasonDetails        String?
+  status               SimilarityStatus    @default(NOVO)
+  reviewedById         String?
+  reviewedBy           User?               @relation("SimilarityMatchReviewedBy", fields: [reviewedById], references: [id])
+  reviewedAt           DateTime?
+  notes                String?
+  createdAt            DateTime            @default(now())
+
+  @@map("similarity_matches")
+}
+
+// ---------------------------------------------------------------------------
+// Pesquisa em linguagem natural
+// ---------------------------------------------------------------------------
+
+model SavedSearch {
+  id                 String   @id @default(cuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id])
+  name               String
+  queryText          String
+  interpretedFilters Json
+  createdAt          DateTime @default(now())
+
+  @@map("saved_searches")
+}
+
+// ---------------------------------------------------------------------------
+// Auditoria, erros de importação e notificações
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  action     String
+  entityType String
+  entityId   String?
+  oldValue   Json?
+  newValue   Json?
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+model ImportError {
+  id        String              @id @default(cuid())
+  rpiFileId String
+  rpiFile   RpiFile             @relation(fields: [rpiFileId], references: [id])
+  severity  ImportErrorSeverity
+  message   String
+  context   Json?
+  createdAt DateTime            @default(now())
+
+  @@map("import_errors")
+}
+
+model Notification {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
+  type              String
+  message           String
+  relatedEntityType String?
+  relatedEntityId   String?
+  read              Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  @@map("notifications")
+}
