@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { CATEGORY_LABELS, DISPATCH_CATEGORIES } from "@/lib/dashboard/publication-filters";
 import { updatePublicationFields } from "./actions";
 import { toggleReviewStatus } from "@/app/dashboard-actions";
+import { createDeadline } from "@/app/deadlines/actions";
+import { computeDeadlineUrgency, DEADLINE_URGENCY_LABELS } from "@/lib/deadlines/deadline-calc";
 
 export default async function PublicationDetailPage({
   params,
@@ -35,6 +37,12 @@ export default async function PublicationDetailPage({
   ]);
 
   if (!publication) notFound();
+
+  const deadlines = await prisma.deadline.findMany({
+    where: { publicationId: publication.id, status: { not: "CANCELADO" } },
+    include: { confirmedBy: true },
+    orderBy: { createdAt: "asc" },
+  });
 
   const canEdit = session.user.role !== "CONSULTA";
   const trademark = publication.proceeding?.trademarks[0];
@@ -196,6 +204,90 @@ export default async function PublicationDetailPage({
               label="Cliente vinculado"
               value="Processo ainda não localizado na carteira (módulo de clientes em construção)"
             />
+          </div>
+
+          <hr className="border-slate-200 dark:border-slate-800" />
+
+          <div>
+            <p className="text-sm font-medium">Prazos</p>
+            {deadlines.map((deadline) => {
+              const operativeDate = deadline.confirmedDate ?? deadline.suggestedDate;
+              const urgency = computeDeadlineUrgency(operativeDate);
+              return (
+                <div
+                  key={deadline.id}
+                  className="mt-2 rounded-md border border-slate-200 p-3 text-sm dark:border-slate-800"
+                >
+                  <p className="font-medium">{deadline.eventLabel}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {deadline.daysConfigured} dias {deadline.countingType?.toLowerCase()} a partir de{" "}
+                    {new Date(deadline.publicationDate).toLocaleDateString("pt-BR")} — sugerido:{" "}
+                    {deadline.suggestedDate &&
+                      new Date(deadline.suggestedDate).toLocaleDateString("pt-BR")}
+                  </p>
+                  {deadline.status === "CONFIRMADO" ? (
+                    <p className="text-xs">
+                      Confirmado para{" "}
+                      {deadline.confirmedDate &&
+                        new Date(deadline.confirmedDate).toLocaleDateString("pt-BR")}{" "}
+                      por {deadline.confirmedBy?.name}
+                    </p>
+                  ) : (
+                    <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                      PRAZO SUGERIDO — CONFERIR
+                    </p>
+                  )}
+                  <p className="text-xs">{DEADLINE_URGENCY_LABELS[urgency]}</p>
+                </div>
+              );
+            })}
+            {deadlines.length === 0 && (
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                Nenhum prazo cadastrado para esta publicação.
+              </p>
+            )}
+
+            {canEdit && (
+              <details className="mt-2">
+                <summary className="cursor-pointer text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400">
+                  Adicionar prazo
+                </summary>
+                <form action={createDeadline} className="mt-2 flex flex-col gap-2">
+                  <input type="hidden" name="publicationId" value={publication.id} />
+                  <input
+                    type="text"
+                    name="eventLabel"
+                    placeholder="Evento inicial (ex.: publicação do despacho)"
+                    required
+                    className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      name="daysConfigured"
+                      placeholder="Dias"
+                      required
+                      min={0}
+                      className="w-24 rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                    />
+                    <select
+                      name="countingType"
+                      defaultValue="CORRIDOS"
+                      className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                    >
+                      <option value="CORRIDOS">Dias corridos</option>
+                      <option value="UTEIS">Dias úteis</option>
+                    </select>
+                  </div>
+                  <button
+                    type="submit"
+                    className="self-start rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900"
+                  >
+                    Calcular prazo sugerido
+                  </button>
+                </form>
+              </details>
+            )}
           </div>
         </section>
 

@@ -53,6 +53,12 @@ export default async function ProceedingHistoryPage({
   const clientLink = proceeding.clientProcesses[0];
   const canEdit = session.user.role !== "CONSULTA";
 
+  const activeDeadlines = proceeding.deadlines.filter((d) => d.status !== "CANCELADO");
+  const nextDeadline = [...activeDeadlines]
+    .map((d) => d.confirmedDate ?? d.suggestedDate)
+    .filter((d): d is Date => Boolean(d))
+    .sort((a, b) => a.getTime() - b.getTime())[0];
+
   const clients = clientLink || !canEdit ? [] : await prisma.client.findMany({ orderBy: { name: "asc" } });
 
   return (
@@ -115,7 +121,10 @@ export default async function ProceedingHistoryPage({
           value={mostRecent ? CATEGORY_LABELS[mostRecent.category] : "—"}
         />
         <SummaryStat label="Último despacho" value={mostRecent?.dispatchCode?.code ?? "—"} />
-        <SummaryStat label="Próximo prazo" value="Ainda não implementado" />
+        <SummaryStat
+          label="Próximo prazo"
+          value={nextDeadline ? nextDeadline.toLocaleDateString("pt-BR") : "—"}
+        />
         <SummaryStat
           label="Providência pendente"
           value={mostRecent?.definedProvidence ?? mostRecent?.suggestedProvidence ?? "—"}

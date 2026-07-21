@@ -76,6 +76,28 @@ export default async function DashboardHomePage({
   const categoryCountMap = new Map(categoryCounts.map((c) => [c.category, c._count._all]));
   const totalPages = Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE));
 
+  const today = new Date();
+  const in7Days = new Date(today);
+  in7Days.setDate(in7Days.getDate() + 7);
+
+  const [prazosUrgentes, tarefasAtrasadas] = await Promise.all([
+    prisma.deadline.count({
+      where: {
+        status: { not: "CANCELADO" },
+        OR: [
+          { confirmedDate: { lte: in7Days } },
+          { AND: [{ confirmedDate: null }, { suggestedDate: { lte: in7Days } }] },
+        ],
+      },
+    }),
+    prisma.task.count({
+      where: {
+        internalDueDate: { lt: today },
+        status: { notIn: ["CONCLUIDO", "CANCELADO", "SEM_PROVIDENCIA"] },
+      },
+    }),
+  ]);
+
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-6 py-10">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -97,6 +119,12 @@ export default async function DashboardHomePage({
             className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
           >
             Tarefas
+          </Link>
+          <Link
+            href="/deadlines"
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+          >
+            Prazos
           </Link>
           <Link
             href="/import"
@@ -142,6 +170,8 @@ export default async function DashboardHomePage({
           label="Processos fora da carteira"
           value={Math.max(0, totalProcessosForaDaCarteira)}
         />
+        <StatCard label="Prazos urgentes (7 dias)" value={prazosUrgentes} />
+        <StatCard label="Tarefas atrasadas" value={tarefasAtrasadas} />
       </section>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
