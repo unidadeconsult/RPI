@@ -53,6 +53,14 @@ export default async function PublicationDetailPage({
             RPI {publication.rpiEdition.number} —{" "}
             {new Date(publication.rpiEdition.publicationDate).toLocaleDateString("pt-BR")}
           </p>
+          {publication.proceedingId && (
+            <Link
+              href={`/proceedings/${publication.proceedingId}`}
+              className="text-sm text-blue-600 underline hover:text-blue-800 dark:text-blue-400"
+            >
+              Ver histórico completo do processo
+            </Link>
+          )}
         </div>
         {canEdit && (
           <form action={toggleReviewStatus}>

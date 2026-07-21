@@ -182,7 +182,18 @@ export default async function DashboardHomePage({
                     )}
                   </td>
                   <td className="px-4 py-3">{pub.dispatchCode?.code ?? "—"}</td>
-                  <td className="px-4 py-3">{pub.processNumberRaw ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    {pub.proceedingId ? (
+                      <Link
+                        href={`/proceedings/${pub.proceedingId}`}
+                        className="text-blue-600 underline hover:text-blue-800 dark:text-blue-400"
+                      >
+                        {pub.processNumberRaw ?? "—"}
+                      </Link>
+                    ) : (
+                      (pub.processNumberRaw ?? "—")
+                    )}
+                  </td>
                   <td className="px-4 py-3">{trademark?.name ?? "—"}</td>
                   <td className="px-4 py-3">
                     {pub.parties.map((party) => party.name).join(" / ") || "—"}
