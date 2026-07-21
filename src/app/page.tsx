@@ -212,6 +212,12 @@ export default async function DashboardHomePage({
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-col gap-2">
+                      <Link
+                        href={`/publications/${pub.id}`}
+                        className="text-xs font-medium text-blue-600 underline hover:text-blue-800 dark:text-blue-400"
+                      >
+                        Abrir detalhes
+                      </Link>
                       <details>
                         <summary className="cursor-pointer text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400">
                           Ver trecho original
