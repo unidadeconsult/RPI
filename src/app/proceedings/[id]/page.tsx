@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { CATEGORY_LABELS } from "@/lib/dashboard/publication-filters";
+import { linkExistingClient } from "@/app/clients/actions";
 
 export default async function ProceedingHistoryPage({
   params,
@@ -50,6 +51,9 @@ export default async function ProceedingHistoryPage({
   // Titulares distintos (mesmo nome pode se repetir em mais de uma publicacao)
   const holderNames = [...new Set(proceeding.parties.map((p) => p.name))];
   const clientLink = proceeding.clientProcesses[0];
+  const canEdit = session.user.role !== "CONSULTA";
+
+  const clients = clientLink || !canEdit ? [] : await prisma.client.findMany({ orderBy: { name: "asc" } });
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-6 py-10">
@@ -63,6 +67,47 @@ export default async function ProceedingHistoryPage({
           {holderNames.join(" / ") || "Titular não identificado"}
         </p>
       </header>
+
+      {!clientLink && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+          <p className="font-medium">
+            PROCESSO ENCONTRADO NA RPI, MAS NÃO LOCALIZADO NA CARTEIRA
+          </p>
+          {canEdit && (
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              {clients.length > 0 && (
+                <form action={linkExistingClient} className="flex items-center gap-2">
+                  <input type="hidden" name="proceedingId" value={proceeding.id} />
+                  <select
+                    name="clientId"
+                    required
+                    className="rounded-md border border-amber-300 bg-white px-2 py-1.5 text-sm dark:border-amber-700 dark:bg-slate-950"
+                  >
+                    <option value="">Selecione um cliente existente</option>
+                    {clients.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="submit"
+                    className="rounded-md bg-amber-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-800"
+                  >
+                    Vincular
+                  </button>
+                </form>
+              )}
+              <Link
+                href={`/clients?proceedingId=${proceeding.id}`}
+                className="text-sm font-medium text-amber-900 underline dark:text-amber-200"
+              >
+                Cadastrar novo cliente
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <SummaryStat
