@@ -63,17 +63,25 @@ export default async function PublicationDetailPage({
           )}
         </div>
         {canEdit && (
-          <form action={toggleReviewStatus}>
-            <input type="hidden" name="publicationId" value={publication.id} />
-            <button
-              type="submit"
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/tasks?publicationId=${publication.id}`}
               className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
             >
-              {publication.reviewStatus === "REVISADO"
-                ? "Marcar como não revisado"
-                : "Marcar como revisado"}
-            </button>
-          </form>
+              Criar tarefa
+            </Link>
+            <form action={toggleReviewStatus}>
+              <input type="hidden" name="publicationId" value={publication.id} />
+              <button
+                type="submit"
+                className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+              >
+                {publication.reviewStatus === "REVISADO"
+                  ? "Marcar como não revisado"
+                  : "Marcar como revisado"}
+              </button>
+            </form>
+          </div>
         )}
       </header>
 
