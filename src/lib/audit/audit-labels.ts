@@ -32,6 +32,8 @@ const AUDIT_ACTION_LABELS: Record<string, string> = {
   CREATE_MONITORED_TRADEMARK: "Marca monitorada cadastrada",
   TOGGLE_MONITORED_TRADEMARK_ACTIVE: "Marca monitorada ativada/desativada",
   REVIEW_SIMILARITY_MATCH: "Semelhança de marca revisada",
+  CREATE_DISPATCH_RULE: "Regra de despacho cadastrada",
+  UPDATE_DISPATCH_RULE: "Regra de despacho atualizada",
 };
 
 export function describeAuditAction(action: string): string {
@@ -51,6 +53,7 @@ const ENTITY_ROUTE_BUILDERS: Record<string, (entityId: string) => string> = {
   MonitoredTrademark: () => `/monitored-trademarks`,
   SimilarityMatch: () => `/similarity-matches?status=NOVO`,
   CalendarEvent: () => `/calendar`,
+  DispatchRule: () => `/dispatch-rules`,
 };
 
 /** Retorna um link para o registro afetado, quando existe uma tela de destino conhecida. */
