@@ -1,15 +1,12 @@
 "use server";
 
 import { createHash } from "node:crypto";
-import path from "node:path";
-import { mkdir, writeFile } from "node:fs/promises";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/authz";
+import { saveFile } from "@/lib/storage/file-storage";
 import type { DocumentType } from "@/generated/prisma/client";
-
-const STORAGE_ROOT = path.resolve(process.cwd(), "storage", "documents");
 
 function textOrNull(value: FormDataEntryValue | null): string | null {
   return typeof value === "string" && value.trim() !== "" ? value.trim() : null;
@@ -32,10 +29,8 @@ export async function uploadDocument(formData: FormData) {
   const buffer = Buffer.from(await file.arrayBuffer());
   const fileHash = createHash("sha256").update(buffer).digest("hex");
 
-  await mkdir(STORAGE_ROOT, { recursive: true });
   const storedFilename = `${fileHash}-${file.name}`;
-  const storagePath = path.join(STORAGE_ROOT, storedFilename);
-  await writeFile(storagePath, buffer);
+  const storagePath = await saveFile("documents", storedFilename, buffer);
 
   const existingDocumentId = textOrNull(formData.get("existingDocumentId"));
 

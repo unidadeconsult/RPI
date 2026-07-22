@@ -1,14 +1,11 @@
 import { createHash } from "node:crypto";
-import path from "node:path";
-import { mkdir, writeFile } from "node:fs/promises";
 import type { PrismaClient } from "@/generated/prisma/client";
 import type { ApolPdfRecord } from "@/lib/parser/apol-pdf-parser";
 import { classifyDispatchCode, type DispatchRuleLookup } from "@/lib/parser/dispatch-classifier";
 import { buildPublicationDraft, renderSourceExcerpt } from "./build-publication-draft";
 import { scanPublicationsForSimilarity } from "@/lib/similarity/run-similarity-scan";
 import { compareRpiVersions } from "./rpi-correction-comparison";
-
-const STORAGE_ROOT = path.resolve(process.cwd(), "storage", "rpi-files");
+import { saveFile } from "@/lib/storage/file-storage";
 
 export type PersistApolImportParams = {
   records: ApolPdfRecord[];
@@ -70,9 +67,7 @@ export async function persistApolImport(
     )
     .filter((draft): draft is NonNullable<typeof draft> => draft !== null);
 
-  await mkdir(STORAGE_ROOT, { recursive: true });
-  const storagePath = path.join(STORAGE_ROOT, `${fileHash}.pdf`);
-  await writeFile(storagePath, params.fileBuffer);
+  const storagePath = await saveFile("rpi-files", `${fileHash}.pdf`, params.fileBuffer);
 
   const dispatchRulesRows = await prisma.dispatchRule.findMany({
     include: { dispatchCode: true },

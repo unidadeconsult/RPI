@@ -1,7 +1,7 @@
-import { readFile } from "node:fs/promises";
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
+import { loadFile } from "@/lib/storage/file-storage";
 
 /**
  * Download autenticado de documento (secao 18/25): nunca exposto
@@ -35,7 +35,7 @@ export async function GET(
   }
 
   try {
-    const buffer = await readFile(filePath);
+    const buffer = await loadFile(filePath);
     return new NextResponse(new Uint8Array(buffer), {
       headers: {
         "Content-Type": "application/octet-stream",
