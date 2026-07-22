@@ -39,7 +39,7 @@ describe("parsePublicationFilters", () => {
 describe("buildPublicationWhere", () => {
   const base = parsePublicationFilters({});
 
-  it("retorna where vazio sem filtros", () => {
+  it("10. busca padrao sem /PE: incluir todos os estados (where vazio, sem restricao de peStatus)", () => {
     expect(buildPublicationWhere(base)).toEqual({});
   });
 

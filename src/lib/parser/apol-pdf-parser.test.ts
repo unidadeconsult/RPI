@@ -170,6 +170,33 @@ describe("groupApolPdfRecords", () => {
     expect(parseNiceClasses(records[0].classesRaw)).toEqual([]);
   });
 
+  it("28. PDF quebrado entre duas paginas: continuacao do procurador na pagina seguinte pertence ao mesmo registro", () => {
+    const yRow = nextY();
+    const yTitular = nextY();
+    const yProcuradorInicioPag1 = nextY();
+    const yProcuradorContinuacaoPag2 = nextY();
+
+    const items: PositionedTextItem[] = [
+      bold(6, FLAG_X, yRow, "M"),
+      plain(6, PROC_X, yRow, "940111222"),
+      plain(6, CLASSES_X, yRow, "NCL(12) 35"),
+      plain(6, DESPACHO_X, yRow, "I029"),
+      plain(6, BODY_X, yTitular, "EMPRESA EXEMPLO LTDA (BR/PE)"),
+      // A linha do procurador comeca no rodape da pagina 6...
+      plain(6, BODY_X, yProcuradorInicioPag1, "SOUZA LEÃO, CAVALCANTI E"),
+      // ...e continua no topo da pagina 7, antes de qualquer nova ancora.
+      plain(7, BODY_X, yProcuradorContinuacaoPag2, "FONTES ADVOGADOS"),
+    ];
+
+    const records = groupApolPdfRecords(items);
+    expect(records).toHaveLength(1);
+    expect(records[0].processNumber).toBe("940111222");
+    expect(records[0].attorneyLines).toEqual([
+      "SOUZA LEÃO, CAVALCANTI E",
+      "FONTES ADVOGADOS",
+    ]);
+  });
+
   it("dois registros sequenciais, cada um com seu proprio procurador (nao vaza entre registros)", () => {
     const yMarca1 = nextY();
     const yRow1 = nextY();

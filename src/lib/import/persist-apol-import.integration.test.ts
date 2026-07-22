@@ -72,6 +72,7 @@ afterAll(async () => {
           "999999991",
           "999999992",
           "999999993",
+          "999999994",
         ],
       },
     },
@@ -136,6 +137,36 @@ describe("persistApolImport", () => {
       uploadedByUserId: testUserId,
     });
     expect(second.status).toBe("DUPLICADO");
+  });
+
+  it("24. mesmo processo com multiplos despachos: publicacoes distintas compartilham o mesmo Proceeding", async () => {
+    const first = await persistApolImport(prisma, {
+      records: [janeRecord({ processNumber: "999999994", dispatchCode: "I029" })],
+      rpiNumber: "TESTE-0005",
+      rpiDate: new Date("2026-07-21T00:00:00Z"),
+      fileBuffer: Buffer.from("despacho 1"),
+      originalFilename: "teste-despacho1.pdf",
+      uploadedByUserId: testUserId,
+    });
+    expect(first.status).toBe("IMPORTADO");
+
+    const second = await persistApolImport(prisma, {
+      records: [janeRecord({ processNumber: "999999994", dispatchCode: "I060" })],
+      rpiNumber: "TESTE-0006",
+      rpiDate: new Date("2026-07-28T00:00:00Z"),
+      fileBuffer: Buffer.from("despacho 2"),
+      originalFilename: "teste-despacho2.pdf",
+      uploadedByUserId: testUserId,
+    });
+    expect(second.status).toBe("IMPORTADO");
+
+    const publications = await prisma.publication.findMany({
+      where: { processNumberRaw: "999999994" },
+      include: { dispatchCode: true },
+    });
+    expect(publications).toHaveLength(2);
+    expect(new Set(publications.map((p) => p.proceedingId)).size).toBe(1);
+    expect(new Set(publications.map((p) => p.dispatchCode?.code)).size).toBe(2);
   });
 
   it("nova versao da mesma RPI marca a anterior como SUBSTITUIDA", async () => {
