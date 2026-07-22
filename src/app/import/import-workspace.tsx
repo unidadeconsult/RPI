@@ -2,6 +2,20 @@
 
 import { useCallback, useRef, useState, type DragEvent } from "react";
 
+type ComparisonDetailEntry = {
+  processNumber: string;
+  status: "ADICIONADA" | "REMOVIDA" | "ALTERADA";
+  previousDispatchCode: string | null;
+  newDispatchCode: string | null;
+};
+
+type RpiVersionComparison = {
+  addedCount: number;
+  removedCount: number;
+  changedCount: number;
+  details: ComparisonDetailEntry[];
+};
+
 type PreviewResponse = {
   fileName: string;
   fileSizeBytes: number;
@@ -18,6 +32,7 @@ type PreviewResponse = {
     peStatus: string;
     matchStatus: string;
   }>;
+  previousEditionComparison: RpiVersionComparison | null;
 };
 
 type ConfirmResponse = {
@@ -50,6 +65,7 @@ type ManagedFile = {
   rpiDate: string;
   error?: string;
   result?: ConfirmResponse;
+  correctionReviewed: boolean;
 };
 
 function formatBytes(bytes: number): string {
@@ -111,6 +127,7 @@ export function ImportWorkspace({ canConfirm }: { canConfirm: boolean }) {
         status: "ANALISANDO" as const,
         rpiNumber: "",
         rpiDate: "",
+        correctionReviewed: false,
       }));
 
       setFiles((prev) => [...prev, ...newEntries]);
@@ -128,6 +145,10 @@ export function ImportWorkspace({ canConfirm }: { canConfirm: boolean }) {
 
   function updateField(id: string, field: "rpiNumber" | "rpiDate", value: string) {
     setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, [field]: value } : f)));
+  }
+
+  function toggleCorrectionReviewed(id: string, checked: boolean) {
+    setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, correctionReviewed: checked } : f)));
   }
 
   async function confirmImport(managed: ManagedFile) {
@@ -204,6 +225,7 @@ export function ImportWorkspace({ canConfirm }: { canConfirm: boolean }) {
             canConfirm={canConfirm}
             onFieldChange={updateField}
             onConfirm={confirmImport}
+            onCorrectionReviewedChange={toggleCorrectionReviewed}
           />
         ))}
       </div>
@@ -216,12 +238,19 @@ function FileCard({
   canConfirm,
   onFieldChange,
   onConfirm,
+  onCorrectionReviewedChange,
 }: {
   managed: ManagedFile;
   canConfirm: boolean;
   onFieldChange: (id: string, field: "rpiNumber" | "rpiDate", value: string) => void;
   onConfirm: (managed: ManagedFile) => void;
+  onCorrectionReviewedChange: (id: string, checked: boolean) => void;
 }) {
+  const comparison = managed.preview?.previousEditionComparison ?? null;
+  const requiresCorrectionReview = comparison !== null;
+  const hasComparisonChanges =
+    comparison !== null &&
+    (comparison.addedCount > 0 || comparison.removedCount > 0 || comparison.changedCount > 0);
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-center justify-between">
@@ -293,6 +322,48 @@ function FileCard({
             </label>
           </div>
 
+          {comparison && (
+            <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-950">
+              <p className="font-medium text-amber-900 dark:text-amber-200">
+                Esta RPI já foi importada antes — possível versão corrigida.
+              </p>
+              {hasComparisonChanges ? (
+                <>
+                  <p className="mt-1 text-amber-800 dark:text-amber-300">
+                    {comparison.addedCount} publicação(ões) incluída(s), {comparison.removedCount}{" "}
+                    removida(s), {comparison.changedCount} alterada(s) em relação à versão anterior.
+                  </p>
+                  <details className="mt-2">
+                    <summary className="cursor-pointer font-medium text-amber-900 dark:text-amber-200">
+                      Ver diferenças
+                    </summary>
+                    <ul className="mt-2 flex flex-col gap-1 text-xs">
+                      {comparison.details.map((d) => (
+                        <li key={`${d.processNumber}-${d.status}`}>
+                          <span className="font-medium">{d.processNumber}</span> — {d.status}
+                          {d.status === "ALTERADA" &&
+                            ` (${d.previousDispatchCode ?? "—"} → ${d.newDispatchCode ?? "—"})`}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                </>
+              ) : (
+                <p className="mt-1 text-amber-800 dark:text-amber-300">
+                  Nenhuma diferença encontrada em relação à versão anterior.
+                </p>
+              )}
+              <label className="mt-3 flex items-center gap-2 text-sm text-amber-900 dark:text-amber-200">
+                <input
+                  type="checkbox"
+                  checked={managed.correctionReviewed}
+                  onChange={(e) => onCorrectionReviewedChange(managed.id, e.target.checked)}
+                />
+                Revisei as diferenças e confirmo a substituição dos dados da versão anterior.
+              </label>
+            </div>
+          )}
+
           {managed.preview.confirmados.length > 0 && (
             <details className="text-sm">
               <summary className="cursor-pointer font-medium">
@@ -327,7 +398,8 @@ function FileCard({
               disabled={
                 managed.status === "IMPORTANDO" ||
                 managed.rpiNumber.trim() === "" ||
-                managed.rpiDate.trim() === ""
+                managed.rpiDate.trim() === "" ||
+                (requiresCorrectionReview && !managed.correctionReviewed)
               }
               onClick={() => onConfirm(managed)}
               className="self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900"

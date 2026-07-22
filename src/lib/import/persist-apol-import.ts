@@ -6,6 +6,7 @@ import type { ApolPdfRecord } from "@/lib/parser/apol-pdf-parser";
 import { classifyDispatchCode, type DispatchRuleLookup } from "@/lib/parser/dispatch-classifier";
 import { buildPublicationDraft, renderSourceExcerpt } from "./build-publication-draft";
 import { scanPublicationsForSimilarity } from "@/lib/similarity/run-similarity-scan";
+import { compareRpiVersions } from "./rpi-correction-comparison";
 
 const STORAGE_ROOT = path.resolve(process.cwd(), "storage", "rpi-files");
 
@@ -87,6 +88,7 @@ export async function persistApolImport(
     const previousLatest = await tx.rpiEdition.findFirst({
       where: { number: params.rpiNumber },
       orderBy: { versionLabel: "desc" },
+      include: { publications: { include: { dispatchCode: true } } },
     });
 
     const rpiEdition = await tx.rpiEdition.create({
@@ -243,6 +245,29 @@ export async function persistApolImport(
           },
         });
       }
+    }
+
+    if (previousLatest) {
+      const comparison = compareRpiVersions(
+        previousLatest.publications.map((p) => ({
+          processNumber: p.processNumberRaw ?? "",
+          dispatchCode: p.dispatchCode?.code ?? null,
+        })),
+        drafts.map((d) => ({ processNumber: d.processNumber, dispatchCode: d.dispatchCodeRaw })),
+      );
+
+      await tx.rpiEditionComparison.create({
+        data: {
+          previousEditionId: previousLatest.id,
+          newEditionId: rpiEdition.id,
+          addedCount: comparison.addedCount,
+          removedCount: comparison.removedCount,
+          changedCount: comparison.changedCount,
+          details: comparison.details,
+          confirmedById: params.uploadedByUserId,
+          confirmedAt: new Date(),
+        },
+      });
     }
 
     await tx.auditLog.create({

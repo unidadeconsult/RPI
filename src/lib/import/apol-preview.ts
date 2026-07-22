@@ -5,6 +5,7 @@ import {
   groupApolPdfRecords,
 } from "@/lib/parser/apol-pdf-parser";
 import { buildPublicationDraft } from "./build-publication-draft";
+import { compareRpiVersions, type RpiVersionComparison } from "./rpi-correction-comparison";
 
 export type ApolImportPreview = {
   detectedRpiNumber: string | null;
@@ -19,7 +20,14 @@ export type ApolImportPreview = {
     holders: string[];
     peStatus: string;
     matchStatus: string;
+    dispatchCode: string | null;
   }>;
+  /**
+   * Presente somente quando ja existe uma edicao anterior com o mesmo
+   * numero de RPI detectado -- indica uma possivel versao corrigida
+   * (secao 6). null quando esta e a primeira importacao desse numero.
+   */
+  previousEditionComparison: RpiVersionComparison | null;
 };
 
 /**
@@ -72,7 +80,26 @@ export async function buildApolPreview(
       holders: draft.holders.map((h) => h.nameRaw),
       peStatus: draft.peStatus,
       matchStatus: hasConfirmed ? "CONFIRMADO" : "DUVIDOSO_REVISAR",
+      dispatchCode: draft.dispatchCodeRaw,
     });
+  }
+
+  let previousEditionComparison: RpiVersionComparison | null = null;
+  if (detectedRpiNumber) {
+    const previousEdition = await prisma.rpiEdition.findFirst({
+      where: { number: detectedRpiNumber },
+      orderBy: { versionLabel: "desc" },
+      include: { publications: { include: { dispatchCode: true } } },
+    });
+    if (previousEdition) {
+      previousEditionComparison = compareRpiVersions(
+        previousEdition.publications.map((p) => ({
+          processNumber: p.processNumberRaw ?? "",
+          dispatchCode: p.dispatchCode?.code ?? null,
+        })),
+        confirmados.map((c) => ({ processNumber: c.processNumber, dispatchCode: c.dispatchCode })),
+      );
+    }
   }
 
   return {
@@ -83,5 +110,6 @@ export async function buildApolPreview(
     totalConfirmadosPe,
     totalLocalizacaoNaoConfirmada,
     confirmados,
+    previousEditionComparison,
   };
 }

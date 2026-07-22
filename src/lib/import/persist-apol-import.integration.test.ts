@@ -79,6 +79,7 @@ afterAll(async () => {
   });
   await prisma.attorney.deleteMany({ where: { normalizedName: { contains: "JANE" } } });
   await prisma.auditLog.deleteMany({ where: { userId: testUserId } });
+  await prisma.rpiEditionComparison.deleteMany({});
   await prisma.rpiFile.deleteMany({});
   await prisma.rpiEdition.deleteMany({ where: { number: { startsWith: "TESTE-" } } });
   await prisma.user.deleteMany({ where: { email: TEST_USER_EMAIL } });
