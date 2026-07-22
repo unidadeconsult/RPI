@@ -335,6 +335,7 @@ model Proceeding {
   documents       Document[]
   clientProcesses ClientProcess[]
   calendarEvents  CalendarEvent[]
+  messageDrafts   MessageDraft[]
 
   @@map("proceedings")
 }
@@ -732,6 +733,8 @@ model MessageDraft {
   recipient         String?
   clientId          String?
   client            Client?            @relation(fields: [clientId], references: [id])
+  proceedingId      String?
+  proceeding        Proceeding?        @relation(fields: [proceedingId], references: [id])
   body              String
   status            MessageDraftStatus @default(RASCUNHO)
   version           Int                @default(1)
