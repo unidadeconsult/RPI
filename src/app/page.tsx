@@ -151,6 +151,12 @@ export default async function DashboardHomePage({
             Relatórios
           </Link>
           <Link
+            href="/management"
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+          >
+            Painel gerencial
+          </Link>
+          <Link
             href="/import"
             className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900"
           >
@@ -435,6 +441,10 @@ function FilterForm({ filters }: { filters: ReturnType<typeof parsePublicationFi
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" name="peOnly" defaultChecked={filters.peOnly} />
           Aplicar filtro adicional /PE
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="semCliente" defaultChecked={filters.semCliente} />
+          Somente processos fora da carteira
         </label>
         <button
           type="submit"

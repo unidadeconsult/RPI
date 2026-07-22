@@ -31,6 +31,7 @@ export type PublicationFilters = {
   holder: string;
   uf: string;
   peOnly: boolean;
+  semCliente: boolean;
   confidence: ConfidenceLevel | "";
   reviewStatus: ReviewStatus | "";
   page: number;
@@ -63,6 +64,7 @@ export function parsePublicationFilters(
     holder: firstValue(searchParams.holder),
     uf: firstValue(searchParams.uf).toUpperCase(),
     peOnly: firstValue(searchParams.peOnly) === "on",
+    semCliente: firstValue(searchParams.semCliente) === "on",
     confidence: ["ALTA", "MEDIA", "BAIXA"].includes(confidence)
       ? (confidence as ConfidenceLevel)
       : "",
@@ -75,6 +77,7 @@ export function parsePublicationFilters(
 
 export function buildPublicationWhere(filters: PublicationFilters): Prisma.PublicationWhereInput {
   const where: Prisma.PublicationWhereInput = {};
+  const proceedingWhere: Prisma.ProceedingWhereInput = {};
 
   if (filters.rpiNumber) {
     where.rpiEdition = { number: { contains: filters.rpiNumber } };
@@ -89,9 +92,15 @@ export function buildPublicationWhere(filters: PublicationFilters): Prisma.Publi
     where.processNumberRaw = { contains: filters.processNumber };
   }
   if (filters.trademark) {
-    where.proceeding = {
-      trademarks: { some: { name: { contains: filters.trademark, mode: "insensitive" } } },
+    proceedingWhere.trademarks = {
+      some: { name: { contains: filters.trademark, mode: "insensitive" } },
     };
+  }
+  if (filters.semCliente) {
+    proceedingWhere.clientProcesses = { none: {} };
+  }
+  if (Object.keys(proceedingWhere).length > 0) {
+    where.proceeding = proceedingWhere;
   }
   if (filters.holder) {
     where.parties = { some: { name: { contains: filters.holder, mode: "insensitive" } } };

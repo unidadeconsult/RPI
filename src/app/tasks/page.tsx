@@ -9,20 +9,35 @@ import { TASK_STATUSES } from "@/lib/dashboard/task-labels";
 export default async function TasksPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; publicationId?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    publicationId?: string;
+    responsibleUserId?: string;
+    overdue?: string;
+  }>;
 }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const { status, publicationId } = await searchParams;
+  const { status, publicationId, responsibleUserId, overdue } = await searchParams;
   const canEdit = session.user.role !== "CONSULTA";
   const statusFilter = TASK_STATUSES.includes(status as (typeof TASK_STATUSES)[number])
     ? (status as (typeof TASK_STATUSES)[number])
     : undefined;
+  const overdueFilter = overdue === "1";
 
   const [tasks, users, publication] = await Promise.all([
     prisma.task.findMany({
-      where: statusFilter ? { status: statusFilter } : undefined,
+      where: {
+        ...(statusFilter ? { status: statusFilter } : {}),
+        ...(responsibleUserId ? { responsibleUserId } : {}),
+        ...(overdueFilter
+          ? {
+              internalDueDate: { lt: new Date() },
+              status: { notIn: ["CONCLUIDO", "CANCELADO", "SEM_PROVIDENCIA"] },
+            }
+          : {}),
+      },
       include: {
         proceeding: true,
         client: true,
