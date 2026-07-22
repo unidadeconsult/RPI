@@ -100,7 +100,7 @@ export function ImportWorkspace({ canConfirm }: { canConfirm: boolean }) {
       return;
     }
 
-    let data: { error?: string; detectedRpiNumber?: string | null } | undefined;
+    let data: { error?: string; details?: string; detectedRpiNumber?: string | null } | undefined;
     try {
       data = await response.json();
     } catch {
@@ -119,10 +119,15 @@ export function ImportWorkspace({ canConfirm }: { canConfirm: boolean }) {
     }
 
     if (!response.ok) {
+      const baseMessage = data?.error ?? `Erro ao processar o arquivo (HTTP ${response.status}).`;
       setFiles((prev) =>
         prev.map((f) =>
           f.id === id
-            ? { ...f, status: "ERRO", error: data?.error ?? `Erro ao processar o arquivo (HTTP ${response.status}).` }
+            ? {
+                ...f,
+                status: "ERRO",
+                error: data?.details ? `${baseMessage} (${data.details})` : baseMessage,
+              }
             : f,
         ),
       );
@@ -201,7 +206,7 @@ export function ImportWorkspace({ canConfirm }: { canConfirm: boolean }) {
       return;
     }
 
-    let data: { error?: string } | undefined;
+    let data: { error?: string; details?: string } | undefined;
     try {
       data = await response.json();
     } catch {
@@ -227,10 +232,15 @@ export function ImportWorkspace({ canConfirm }: { canConfirm: boolean }) {
     }
 
     if (!response.ok) {
+      const baseMessage = data?.error ?? `Erro ao confirmar a importação (HTTP ${response.status}).`;
       setFiles((prev) =>
         prev.map((f) =>
           f.id === managed.id
-            ? { ...f, status: "ERRO", error: data?.error ?? `Erro ao confirmar a importação (HTTP ${response.status}).` }
+            ? {
+                ...f,
+                status: "ERRO",
+                error: data?.details ? `${baseMessage} (${data.details})` : baseMessage,
+              }
             : f,
         ),
       );
