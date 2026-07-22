@@ -8,6 +8,7 @@ import {
   type DeadlineUrgency,
 } from "@/lib/deadlines/deadline-calc";
 import { cancelDeadline, confirmDeadline } from "./actions";
+import { ConfirmForm } from "@/components/confirm-form";
 
 const URGENCY_COLORS: Record<DeadlineUrgency, string> = {
   SEM_DATA: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
@@ -160,12 +161,16 @@ export default async function DeadlinesPage() {
                     </details>
                   )}
                   {canEdit && (
-                    <form action={cancelDeadline} className="mt-1">
+                    <ConfirmForm
+                      action={cancelDeadline}
+                      confirmMessage="Cancelar este prazo? Ele deixará de aparecer como prazo ativo."
+                      className="mt-1"
+                    >
                       <input type="hidden" name="deadlineId" value={deadline.id} />
                       <button type="submit" className="text-xs text-slate-500 underline hover:text-slate-700 dark:text-slate-400">
                         Cancelar
                       </button>
-                    </form>
+                    </ConfirmForm>
                   )}
                 </td>
               </tr>

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { createMonitoredTrademark, toggleMonitoredTrademarkActive } from "./actions";
+import { ConfirmForm } from "@/components/confirm-form";
 
 export default async function MonitoredTrademarksPage() {
   const session = await auth();
@@ -181,12 +182,24 @@ export default async function MonitoredTrademarksPage() {
                 </td>
                 {canEdit && (
                   <td className="px-4 py-3">
-                    <form action={toggleMonitoredTrademarkActive}>
-                      <input type="hidden" name="id" value={m.id} />
-                      <button type="submit" className="text-xs text-blue-600 underline hover:text-blue-800 dark:text-blue-400">
-                        {m.active ? "Desativar" : "Ativar"}
-                      </button>
-                    </form>
+                    {m.active ? (
+                      <ConfirmForm
+                        action={toggleMonitoredTrademarkActive}
+                        confirmMessage={`Desativar o monitoramento de "${m.mainExpression}"? Novas publicações não serão mais comparadas com esta marca até reativar.`}
+                      >
+                        <input type="hidden" name="id" value={m.id} />
+                        <button type="submit" className="text-xs text-blue-600 underline hover:text-blue-800 dark:text-blue-400">
+                          Desativar
+                        </button>
+                      </ConfirmForm>
+                    ) : (
+                      <form action={toggleMonitoredTrademarkActive}>
+                        <input type="hidden" name="id" value={m.id} />
+                        <button type="submit" className="text-xs text-blue-600 underline hover:text-blue-800 dark:text-blue-400">
+                          Ativar
+                        </button>
+                      </form>
+                    )}
                   </td>
                 )}
               </tr>
