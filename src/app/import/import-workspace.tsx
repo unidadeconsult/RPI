@@ -82,41 +82,65 @@ export function ImportWorkspace({ canConfirm }: { canConfirm: boolean }) {
     const formData = new FormData();
     formData.append("file", file);
 
+    let response: Response;
     try {
-      const response = await fetch("/api/import/apol/preview", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        setFiles((prev) =>
-          prev.map((f) => (f.id === id ? { ...f, status: "ERRO", error: data.error } : f)),
-        );
-        return;
-      }
-
+      response = await fetch("/api/import/apol/preview", { method: "POST", body: formData });
+    } catch {
       setFiles((prev) =>
         prev.map((f) =>
           f.id === id
             ? {
                 ...f,
-                status: "PRE_VISUALIZADO",
-                preview: data,
-                rpiNumber: data.detectedRpiNumber ?? "",
+                status: "ERRO",
+                error: "Falha de rede ao enviar o arquivo. Verifique sua conexão e tente novamente.",
               }
             : f,
         ),
       );
+      return;
+    }
+
+    let data: { error?: string; detectedRpiNumber?: string | null } | undefined;
+    try {
+      data = await response.json();
     } catch {
       setFiles((prev) =>
         prev.map((f) =>
           f.id === id
-            ? { ...f, status: "ERRO", error: "Falha de rede ao enviar o arquivo." }
+            ? {
+                ...f,
+                status: "ERRO",
+                error: `O servidor não respondeu corretamente (HTTP ${response.status}). Se o arquivo for grande, a importação pode ter demorado além do tempo limite — tente novamente.`,
+              }
             : f,
         ),
       );
+      return;
     }
+
+    if (!response.ok) {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === id
+            ? { ...f, status: "ERRO", error: data?.error ?? `Erro ao processar o arquivo (HTTP ${response.status}).` }
+            : f,
+        ),
+      );
+      return;
+    }
+
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === id
+          ? {
+              ...f,
+              status: "PRE_VISUALIZADO",
+              preview: data as unknown as PreviewResponse,
+              rpiNumber: data?.detectedRpiNumber ?? "",
+            }
+          : f,
+      ),
+    );
   }, []);
 
   const addFiles = useCallback(
@@ -159,39 +183,65 @@ export function ImportWorkspace({ canConfirm }: { canConfirm: boolean }) {
     formData.append("rpiNumber", managed.rpiNumber);
     formData.append("rpiDate", managed.rpiDate);
 
+    let response: Response;
     try {
-      const response = await fetch("/api/import/apol/confirm", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-
-      if (response.status === 409) {
-        setFiles((prev) =>
-          prev.map((f) => (f.id === managed.id ? { ...f, status: "DUPLICADO", error: data.error } : f)),
-        );
-        return;
-      }
-
-      if (!response.ok) {
-        setFiles((prev) =>
-          prev.map((f) => (f.id === managed.id ? { ...f, status: "ERRO", error: data.error } : f)),
-        );
-        return;
-      }
-
-      setFiles((prev) =>
-        prev.map((f) => (f.id === managed.id ? { ...f, status: "IMPORTADO", result: data } : f)),
-      );
+      response = await fetch("/api/import/apol/confirm", { method: "POST", body: formData });
     } catch {
       setFiles((prev) =>
         prev.map((f) =>
           f.id === managed.id
-            ? { ...f, status: "ERRO", error: "Falha de rede ao confirmar a importação." }
+            ? {
+                ...f,
+                status: "ERRO",
+                error: "Falha de rede ao confirmar a importação. Verifique sua conexão e tente novamente.",
+              }
             : f,
         ),
       );
+      return;
     }
+
+    let data: { error?: string } | undefined;
+    try {
+      data = await response.json();
+    } catch {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === managed.id
+            ? {
+                ...f,
+                status: "ERRO",
+                error: `O servidor não respondeu corretamente (HTTP ${response.status}). Se o arquivo for grande, a importação pode ter demorado além do tempo limite — tente novamente.`,
+              }
+            : f,
+        ),
+      );
+      return;
+    }
+
+    if (response.status === 409) {
+      setFiles((prev) =>
+        prev.map((f) => (f.id === managed.id ? { ...f, status: "DUPLICADO", error: data?.error } : f)),
+      );
+      return;
+    }
+
+    if (!response.ok) {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === managed.id
+            ? { ...f, status: "ERRO", error: data?.error ?? `Erro ao confirmar a importação (HTTP ${response.status}).` }
+            : f,
+        ),
+      );
+      return;
+    }
+
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === managed.id ? { ...f, status: "IMPORTADO", result: data as unknown as ConfirmResponse } : f,
+      ),
+    );
   }
 
   return (

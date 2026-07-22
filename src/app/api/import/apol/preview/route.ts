@@ -3,6 +3,11 @@ import { requireRole, ForbiddenError } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { buildApolPreview } from "@/lib/import/apol-preview";
 
+// A extracao posicional do PDF (pdfjs-dist) de uma RPI inteira pode levar
+// mais que o limite padrao de execucao serverless -- sem isso, a funcao e
+// encerrada no meio da requisicao e o navegador ve como falha de rede.
+export const maxDuration = 60;
+
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
 export async function POST(request: Request) {

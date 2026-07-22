@@ -5,6 +5,12 @@ import { extractPositionedTextFromPdf } from "@/lib/parser/apol-pdf-text";
 import { groupApolPdfRecords } from "@/lib/parser/apol-pdf-parser";
 import { persistApolImport } from "@/lib/import/persist-apol-import";
 
+// Parsing + persistencia (varias consultas sequenciais por publicacao) de
+// uma RPI inteira pode levar mais que o limite padrao de execucao
+// serverless -- sem isso, a funcao e encerrada no meio da requisicao e o
+// navegador ve como falha de rede.
+export const maxDuration = 60;
+
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
 
 export async function POST(request: Request) {
