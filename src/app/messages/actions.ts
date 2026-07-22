@@ -117,7 +117,7 @@ export async function createMessageDraft(formData: FormData) {
 }
 
 export async function updateMessageDraftBody(formData: FormData) {
-  await requireRole(["ADMINISTRADOR", "ANALISTA"]);
+  const user = await requireRole(["ADMINISTRADOR", "ANALISTA"]);
 
   const draftId = formData.get("draftId");
   const body = formData.get("body");
@@ -128,10 +128,22 @@ export async function updateMessageDraftBody(formData: FormData) {
 
   const draft = await prisma.messageDraft.findUniqueOrThrow({ where: { id: draftId } });
 
-  await prisma.messageDraft.update({
-    where: { id: draftId },
-    data: { body, recipient, version: draft.version + 1 },
-  });
+  await prisma.$transaction([
+    prisma.messageDraft.update({
+      where: { id: draftId },
+      data: { body, recipient, version: draft.version + 1 },
+    }),
+    prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: "UPDATE_MESSAGE_DRAFT_BODY",
+        entityType: "MessageDraft",
+        entityId: draftId,
+        oldValue: { body: draft.body, recipient: draft.recipient, version: draft.version },
+        newValue: { body, recipient, version: draft.version + 1 },
+      },
+    }),
+  ]);
 
   revalidatePath(`/messages/${draftId}`);
 }
@@ -171,12 +183,23 @@ export async function confirmManualSend(formData: FormData) {
 }
 
 export async function cancelMessageDraft(formData: FormData) {
-  await requireRole(["ADMINISTRADOR", "ANALISTA"]);
+  const user = await requireRole(["ADMINISTRADOR", "ANALISTA"]);
 
   const draftId = formData.get("draftId");
   if (typeof draftId !== "string") throw new Error("draftId ausente");
 
-  await prisma.messageDraft.update({ where: { id: draftId }, data: { status: "CANCELADO" } });
+  await prisma.$transaction([
+    prisma.messageDraft.update({ where: { id: draftId }, data: { status: "CANCELADO" } }),
+    prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: "CANCEL_MESSAGE_DRAFT",
+        entityType: "MessageDraft",
+        entityId: draftId,
+        newValue: { status: "CANCELADO" },
+      },
+    }),
+  ]);
   revalidatePath(`/messages/${draftId}`);
   revalidatePath("/messages");
 }
@@ -209,11 +232,19 @@ export async function upsertMessageTemplate(formData: FormData) {
     updatedById: user.id,
   };
 
-  if (templateId) {
-    await prisma.messageTemplate.update({ where: { id: templateId }, data });
-  } else {
-    await prisma.messageTemplate.create({ data });
-  }
+  const template = templateId
+    ? await prisma.messageTemplate.update({ where: { id: templateId }, data })
+    : await prisma.messageTemplate.create({ data });
+
+  await prisma.auditLog.create({
+    data: {
+      userId: user.id,
+      action: templateId ? "UPDATE_MESSAGE_TEMPLATE" : "CREATE_MESSAGE_TEMPLATE",
+      entityType: "MessageTemplate",
+      entityId: template.id,
+      newValue: { name: data.name, channel: data.channel, category: data.category },
+    },
+  });
 
   revalidatePath("/messages/templates");
 }

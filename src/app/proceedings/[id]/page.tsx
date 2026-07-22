@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { CATEGORY_LABELS } from "@/lib/dashboard/publication-filters";
+import { describeAuditAction } from "@/lib/audit/audit-labels";
 import { linkExistingClient } from "@/app/clients/actions";
 
 export default async function ProceedingHistoryPage({
@@ -246,11 +247,3 @@ function EmptyModuleCard({ title, count }: { title: string; count: number }) {
   );
 }
 
-function describeAuditAction(action: string): string {
-  const labels: Record<string, string> = {
-    UPDATE_PUBLICATION_FIELDS: "Dados da publicação foram corrigidos",
-    TOGGLE_REVIEW_STATUS: "Status de revisão foi alterado",
-    IMPORT_RPI: "RPI importada",
-  };
-  return labels[action] ?? action;
-}

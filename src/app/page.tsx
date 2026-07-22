@@ -180,6 +180,14 @@ export default async function DashboardHomePage({
           >
             Alertas
           </Link>
+          {session!.user.role === "ADMINISTRADOR" && (
+            <Link
+              href="/audit"
+              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+            >
+              Auditoria
+            </Link>
+          )}
           <Link
             href="/import"
             className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900"

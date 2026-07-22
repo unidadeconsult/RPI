@@ -30,7 +30,7 @@ export async function createMonitoredTrademark(formData: FormData) {
   const minSimilarityRaw = formData.get("minSimilarity");
   const minSimilarity = typeof minSimilarityRaw === "string" ? Number.parseFloat(minSimilarityRaw) : 0.7;
 
-  await prisma.monitoredTrademark.create({
+  const monitored = await prisma.monitoredTrademark.create({
     data: {
       mainExpression: mainExpression.trim(),
       variations: splitList(formData.get("variations")),
@@ -44,17 +44,40 @@ export async function createMonitoredTrademark(formData: FormData) {
     },
   });
 
+  await prisma.auditLog.create({
+    data: {
+      userId: user.id,
+      action: "CREATE_MONITORED_TRADEMARK",
+      entityType: "MonitoredTrademark",
+      entityId: monitored.id,
+      newValue: { mainExpression: monitored.mainExpression },
+    },
+  });
+
   revalidatePath("/monitored-trademarks");
 }
 
 export async function toggleMonitoredTrademarkActive(formData: FormData) {
-  await requireRole(["ADMINISTRADOR", "ANALISTA"]);
+  const user = await requireRole(["ADMINISTRADOR", "ANALISTA"]);
 
   const id = formData.get("id");
   if (typeof id !== "string") throw new Error("id ausente");
 
   const current = await prisma.monitoredTrademark.findUniqueOrThrow({ where: { id } });
-  await prisma.monitoredTrademark.update({ where: { id }, data: { active: !current.active } });
+
+  await prisma.$transaction([
+    prisma.monitoredTrademark.update({ where: { id }, data: { active: !current.active } }),
+    prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: "TOGGLE_MONITORED_TRADEMARK_ACTIVE",
+        entityType: "MonitoredTrademark",
+        entityId: id,
+        oldValue: { active: current.active },
+        newValue: { active: !current.active },
+      },
+    }),
+  ]);
 
   revalidatePath("/monitored-trademarks");
 }

@@ -149,15 +149,25 @@ export async function addTaskComment(formData: FormData) {
     throw new Error("Comentário vazio.");
   }
 
-  await prisma.taskComment.create({
+  const comment = await prisma.taskComment.create({
     data: { taskId, userId: user.id, body: body.trim() },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      userId: user.id,
+      action: "ADD_TASK_COMMENT",
+      entityType: "TaskComment",
+      entityId: comment.id,
+      newValue: { taskId, body: body.trim() },
+    },
   });
 
   revalidatePath(`/tasks/${taskId}`);
 }
 
 export async function toggleChecklistItem(formData: FormData) {
-  await requireRole(["ADMINISTRADOR", "ANALISTA"]);
+  const user = await requireRole(["ADMINISTRADOR", "ANALISTA"]);
 
   const taskId = formData.get("taskId");
   const itemId = formData.get("itemId");
@@ -172,12 +182,24 @@ export async function toggleChecklistItem(formData: FormData) {
     item.id === itemId ? { ...item, done: !item.done } : item,
   );
 
-  await prisma.task.update({ where: { id: taskId }, data: { checklist: updated } });
+  await prisma.$transaction([
+    prisma.task.update({ where: { id: taskId }, data: { checklist: updated } }),
+    prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: "TOGGLE_TASK_CHECKLIST_ITEM",
+        entityType: "Task",
+        entityId: taskId,
+        oldValue: { checklist },
+        newValue: { checklist: updated },
+      },
+    }),
+  ]);
   revalidatePath(`/tasks/${taskId}`);
 }
 
 export async function addChecklistItem(formData: FormData) {
-  await requireRole(["ADMINISTRADOR", "ANALISTA"]);
+  const user = await requireRole(["ADMINISTRADOR", "ANALISTA"]);
 
   const taskId = formData.get("taskId");
   const text = formData.get("text");
@@ -190,6 +212,17 @@ export async function addChecklistItem(formData: FormData) {
 
   checklist.push({ id: crypto.randomUUID(), text: text.trim(), done: false });
 
-  await prisma.task.update({ where: { id: taskId }, data: { checklist } });
+  await prisma.$transaction([
+    prisma.task.update({ where: { id: taskId }, data: { checklist } }),
+    prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: "ADD_TASK_CHECKLIST_ITEM",
+        entityType: "Task",
+        entityId: taskId,
+        newValue: { checklist },
+      },
+    }),
+  ]);
   revalidatePath(`/tasks/${taskId}`);
 }

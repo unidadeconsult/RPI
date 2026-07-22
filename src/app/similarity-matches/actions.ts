@@ -22,15 +22,26 @@ export async function reviewSimilarityMatch(formData: FormData) {
     throw new Error("status inválido");
   }
 
-  await prisma.similarityMatch.update({
-    where: { id: matchId },
-    data: {
-      status,
-      reviewedById: user.id,
-      reviewedAt: new Date(),
-      notes: typeof notes === "string" ? notes || null : undefined,
-    },
-  });
+  await prisma.$transaction([
+    prisma.similarityMatch.update({
+      where: { id: matchId },
+      data: {
+        status,
+        reviewedById: user.id,
+        reviewedAt: new Date(),
+        notes: typeof notes === "string" ? notes || null : undefined,
+      },
+    }),
+    prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: "REVIEW_SIMILARITY_MATCH",
+        entityType: "SimilarityMatch",
+        entityId: matchId,
+        newValue: { status },
+      },
+    }),
+  ]);
 
   revalidatePath("/similarity-matches");
 }
