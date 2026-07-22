@@ -64,7 +64,7 @@ export default async function TasksPage({
       </header>
 
       {canEdit && (
-        <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <section className="surface-card p-6">
           <h2 className="font-semibold">Nova tarefa</h2>
           {publication && (
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -80,14 +80,14 @@ export default async function TasksPage({
                 type="text"
                 name="title"
                 required
-                className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="field"
               />
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Responsável
               <select
                 name="responsibleUserId"
-                className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="field"
               >
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>
@@ -101,7 +101,7 @@ export default async function TasksPage({
               <select
                 name="reviewerUserId"
                 defaultValue=""
-                className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="field"
               >
                 <option value="">Sem revisor</option>
                 {users.map((u) => (
@@ -116,7 +116,7 @@ export default async function TasksPage({
               <select
                 name="priority"
                 defaultValue="MEDIA"
-                className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="field"
               >
                 {Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -130,12 +130,12 @@ export default async function TasksPage({
               <input
                 type="date"
                 name="internalDueDate"
-                className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="field"
               />
             </label>
             <button
               type="submit"
-              className="self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 sm:col-span-2 dark:bg-slate-100 dark:text-slate-900"
+              className="self-start btn-primary sm:col-span-2"
             >
               Criar tarefa
             </button>
@@ -148,8 +148,8 @@ export default async function TasksPage({
           href="/tasks"
           className={`rounded-full px-3 py-1 text-xs ${
             !status
-              ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-              : "border border-slate-300 dark:border-slate-700"
+              ? "pill-active"
+              : "pill"
           }`}
         >
           Todos
@@ -160,8 +160,8 @@ export default async function TasksPage({
             href={`/tasks?status=${s}`}
             className={`rounded-full px-3 py-1 text-xs ${
               status === s
-                ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-                : "border border-slate-300 dark:border-slate-700"
+                ? "pill-active"
+                : "pill"
             }`}
           >
             {TASK_STATUS_LABELS[s]}
@@ -169,7 +169,7 @@ export default async function TasksPage({
         ))}
       </div>
 
-      <section className="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <section className="overflow-x-auto surface-card">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
             <tr>

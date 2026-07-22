@@ -171,7 +171,7 @@ export default async function CalendarPage({
         </div>
         <a
           href={`/api/calendar/ics${sp.processNumber ? `?processNumber=${sp.processNumber}` : ""}`}
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+          className="btn-secondary"
         >
           Exportar .ICS
         </a>
@@ -181,7 +181,7 @@ export default async function CalendarPage({
         <div className="flex items-center gap-2 text-sm">
           <Link
             href={`/calendar?view=month&year=${prevYear}&month=${prevMonth}`}
-            className="rounded-md border border-slate-300 px-2 py-1 dark:border-slate-700"
+            className="field text-xs"
           >
             ← Mês anterior
           </Link>
@@ -190,7 +190,7 @@ export default async function CalendarPage({
           </span>
           <Link
             href={`/calendar?view=month&year=${nextYear}&month=${nextMonth}`}
-            className="rounded-md border border-slate-300 px-2 py-1 dark:border-slate-700"
+            className="field text-xs"
           >
             Mês seguinte →
           </Link>
@@ -202,8 +202,8 @@ export default async function CalendarPage({
               href={`/calendar?view=${v}&year=${year}&month=${month}`}
               className={`rounded-md px-3 py-1 ${
                 view === v
-                  ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-                  : "border border-slate-300 dark:border-slate-700"
+                  ? "pill-active"
+                  : "pill"
               }`}
             >
               {v === "month" ? "Mensal" : v === "week" ? "Semanal" : "Diário"}
@@ -212,13 +212,13 @@ export default async function CalendarPage({
         </div>
       </div>
 
-      <form className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
+      <form className="flex flex-wrap items-end gap-3 surface-card p-4 text-sm">
         <input type="hidden" name="view" value={view} />
         <input type="hidden" name="year" value={year} />
         <input type="hidden" name="month" value={month} />
         <label className="flex flex-col gap-1">
           Tipo
-          <select name="type" defaultValue={sp.type ?? ""} className="rounded-md border border-slate-300 px-2 py-1 dark:border-slate-700 dark:bg-slate-950">
+          <select name="type" defaultValue={sp.type ?? ""} className="field text-xs">
             <option value="">Todos</option>
             {EVENT_TYPES.map((t) => (
               <option key={t} value={t}>
@@ -229,7 +229,7 @@ export default async function CalendarPage({
         </label>
         <label className="flex flex-col gap-1">
           Responsável
-          <select name="responsibleUserId" defaultValue={sp.responsibleUserId ?? ""} className="rounded-md border border-slate-300 px-2 py-1 dark:border-slate-700 dark:bg-slate-950">
+          <select name="responsibleUserId" defaultValue={sp.responsibleUserId ?? ""} className="field text-xs">
             <option value="">Todos</option>
             {users.map((u) => (
               <option key={u.id} value={u.id}>
@@ -240,7 +240,7 @@ export default async function CalendarPage({
         </label>
         <label className="flex flex-col gap-1">
           Cliente
-          <select name="clientId" defaultValue={sp.clientId ?? ""} className="rounded-md border border-slate-300 px-2 py-1 dark:border-slate-700 dark:bg-slate-950">
+          <select name="clientId" defaultValue={sp.clientId ?? ""} className="field text-xs">
             <option value="">Todos</option>
             {clients.map((c) => (
               <option key={c.id} value={c.id}>
@@ -251,17 +251,17 @@ export default async function CalendarPage({
         </label>
         <label className="flex flex-col gap-1">
           Processo
-          <input type="text" name="processNumber" defaultValue={sp.processNumber ?? ""} className="rounded-md border border-slate-300 px-2 py-1 dark:border-slate-700 dark:bg-slate-950" />
+          <input type="text" name="processNumber" defaultValue={sp.processNumber ?? ""} className="field text-xs" />
         </label>
         <label className="flex flex-col gap-1">
           Confirmado
-          <select name="confirmed" defaultValue={sp.confirmed ?? ""} className="rounded-md border border-slate-300 px-2 py-1 dark:border-slate-700 dark:bg-slate-950">
+          <select name="confirmed" defaultValue={sp.confirmed ?? ""} className="field text-xs">
             <option value="">Todos</option>
             <option value="true">Confirmado</option>
             <option value="false">Não confirmado</option>
           </select>
         </label>
-        <button type="submit" className="rounded-md bg-slate-900 px-3 py-1.5 font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900">
+        <button type="submit" className="btn-primary">
           Filtrar
         </button>
       </form>
@@ -308,7 +308,7 @@ export default async function CalendarPage({
             const key = day.toISOString().slice(0, 10);
             const dayEvents = eventsByDay.get(key) ?? [];
             return (
-              <div key={key} className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+              <div key={key} className="surface-card p-4">
                 <p className="text-sm font-medium">
                   {day.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit", timeZone: "UTC" })}
                 </p>
@@ -327,20 +327,20 @@ export default async function CalendarPage({
       )}
 
       {canEdit && (
-        <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <section className="surface-card p-6">
           <h2 className="font-semibold">Novo evento manual</h2>
           <form action={createCalendarEvent} className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <label className="flex flex-col gap-1 text-sm sm:col-span-2">
               Título
-              <input type="text" name="title" required className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950" />
+              <input type="text" name="title" required className="field" />
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Data
-              <input type="date" name="date" required className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950" />
+              <input type="date" name="date" required className="field" />
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Tipo
-              <select name="type" defaultValue="REUNIAO" className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950">
+              <select name="type" defaultValue="REUNIAO" className="field">
                 {EVENT_TYPES.map((t) => (
                   <option key={t} value={t}>
                     {EVENT_TYPE_LABELS[t]}
@@ -350,11 +350,11 @@ export default async function CalendarPage({
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Processo (opcional)
-              <input type="text" name="processNumber" className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950" />
+              <input type="text" name="processNumber" className="field" />
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Cliente (opcional)
-              <select name="clientId" defaultValue="" className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950">
+              <select name="clientId" defaultValue="" className="field">
                 <option value="">Nenhum</option>
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -365,7 +365,7 @@ export default async function CalendarPage({
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Responsável (opcional)
-              <select name="responsibleUserId" defaultValue="" className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950">
+              <select name="responsibleUserId" defaultValue="" className="field">
                 <option value="">Nenhum</option>
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>
@@ -374,7 +374,7 @@ export default async function CalendarPage({
                 ))}
               </select>
             </label>
-            <button type="submit" className="self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 sm:col-span-3 dark:bg-slate-100 dark:text-slate-900">
+            <button type="submit" className="self-start btn-primary sm:col-span-3">
               Criar evento
             </button>
           </form>

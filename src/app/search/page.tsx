@@ -35,18 +35,18 @@ export default async function SearchPage({
           name="q"
           defaultValue={q ?? ""}
           placeholder='Ex.: oposições em Pernambuco não revisadas'
-          className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
+          className="flex-1 field"
         />
         <button
           type="submit"
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900"
+          className="btn-primary"
         >
           Pesquisar
         </button>
       </form>
 
       {result && (
-        <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <section className="surface-card p-6">
           <h2 className="font-semibold">Entendemos sua busca como:</h2>
           {result.recognized.length > 0 ? (
             <ul className="mt-3 flex flex-wrap gap-2">
@@ -73,7 +73,7 @@ export default async function SearchPage({
 
           <Link
             href={dashboardHref!}
-            className="mt-4 inline-block rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900"
+            className="mt-4 inline-block btn-primary"
           >
             Ver resultados no dashboard
           </Link>

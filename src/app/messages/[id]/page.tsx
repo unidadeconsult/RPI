@@ -47,7 +47,7 @@ export default async function MessageDraftDetailPage({
 
       <section
         key={`${draft.version}-${draft.status}`}
-        className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
+        className="surface-card p-6"
       >
         <p className="text-sm text-amber-700 dark:text-amber-400">
           Revise o texto abaixo antes de enviar manualmente pelo canal escolhido. O sistema não
@@ -63,7 +63,7 @@ export default async function MessageDraftDetailPage({
               name="recipient"
               defaultValue={draft.recipient ?? ""}
               disabled={!canEdit || draft.status !== "RASCUNHO"}
-              className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950"
+              className="field"
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
@@ -73,11 +73,11 @@ export default async function MessageDraftDetailPage({
               rows={10}
               defaultValue={draft.body}
               disabled={!canEdit || draft.status !== "RASCUNHO"}
-              className="rounded-md border border-slate-300 px-2 py-1.5 font-mono text-sm dark:border-slate-700 dark:bg-slate-950"
+              className="field font-mono"
             />
           </label>
           {canEdit && draft.status === "RASCUNHO" && (
-            <button type="submit" className="self-start rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900">
+            <button type="submit" className="self-start btn-secondary">
               Salvar edição
             </button>
           )}
@@ -90,7 +90,7 @@ export default async function MessageDraftDetailPage({
               confirmMessage="Confirmar que esta mensagem foi enviada manualmente? Esta ação não pode ser desfeita."
             >
               <input type="hidden" name="draftId" value={draft.id} />
-              <button type="submit" className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900">
+              <button type="submit" className="btn-primary">
                 Confirmar envio manual
               </button>
             </ConfirmForm>
@@ -99,7 +99,7 @@ export default async function MessageDraftDetailPage({
               confirmMessage="Cancelar este rascunho de mensagem?"
             >
               <input type="hidden" name="draftId" value={draft.id} />
-              <button type="submit" className="rounded-md border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900">
+              <button type="submit" className="btn-secondary">
                 Cancelar
               </button>
             </ConfirmForm>

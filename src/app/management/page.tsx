@@ -97,21 +97,21 @@ export default async function ManagementPage() {
         </section>
       )}
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+      <section className="surface-card p-6">
         <h2 className="font-semibold">Publicações por edição da RPI</h2>
         <div className="mt-4">
           <BarChart rows={editionRows} />
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+      <section className="surface-card p-6">
         <h2 className="font-semibold">Publicações por categoria de despacho</h2>
         <div className="mt-4">
           <BarChart rows={categoryRows} />
         </div>
       </section>
 
-      <section className="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <section className="overflow-x-auto surface-card">
         <h2 className="p-6 pb-0 font-semibold">Tarefas por responsável</h2>
         <table className="mt-4 w-full text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
@@ -147,7 +147,7 @@ export default async function ManagementPage() {
         </table>
       </section>
 
-      <section className="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <section className="overflow-x-auto surface-card">
         <h2 className="p-6 pb-0 font-semibold">Volume de processos por cliente</h2>
         <table className="mt-4 w-full text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
@@ -196,7 +196,7 @@ function StatCard({
   note?: string;
 }) {
   const card = (
-    <div className="h-full rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+    <div className="h-full surface-card p-4">
       <p className="text-2xl font-semibold">{value}</p>
       <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
       {note && <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">{note}</p>}
@@ -214,7 +214,7 @@ function StatCard({
 
 function SampleList({ title, items }: { title: string; items: { id: string; processNumber: string }[] }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+    <div className="surface-card p-4">
       <h3 className="font-semibold">{title}</h3>
       <ul className="mt-2 flex flex-col gap-1">
         {items.map((item) => (

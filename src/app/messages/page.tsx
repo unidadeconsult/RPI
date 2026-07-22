@@ -41,18 +41,18 @@ export default async function MessagesPage({
             O sistema prepara rascunhos — nenhuma mensagem é enviada automaticamente.
           </p>
         </div>
-        <Link href="/messages/templates" className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900">
+        <Link href="/messages/templates" className="btn-secondary">
           Modelos
         </Link>
       </header>
 
       {canEdit && (
-        <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <section className="surface-card p-6">
           <h2 className="font-semibold">Preparar rascunho</h2>
           <form action={createMessageDraft} className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 text-sm sm:col-span-2">
               Modelo
-              <select name="templateId" required className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950">
+              <select name="templateId" required className="field">
                 {templates.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name} ({MESSAGE_CATEGORY_LABELS[t.category]})
@@ -62,11 +62,11 @@ export default async function MessagesPage({
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Processo (opcional, preenche as variáveis)
-              <input type="text" name="processNumber" defaultValue={processNumber ?? ""} className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950" />
+              <input type="text" name="processNumber" defaultValue={processNumber ?? ""} className="field" />
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Cliente (opcional)
-              <select name="clientId" defaultValue={clientId ?? ""} className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950">
+              <select name="clientId" defaultValue={clientId ?? ""} className="field">
                 <option value="">Nenhum</option>
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -77,20 +77,20 @@ export default async function MessagesPage({
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Destinatário
-              <input type="text" name="recipient" placeholder="telefone ou e-mail" className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950" />
+              <input type="text" name="recipient" placeholder="telefone ou e-mail" className="field" />
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Documentos solicitados (opcional)
-              <input type="text" name="documentos" className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950" />
+              <input type="text" name="documentos" className="field" />
             </label>
-            <button type="submit" className="self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 sm:col-span-2 dark:bg-slate-100 dark:text-slate-900">
+            <button type="submit" className="self-start btn-primary sm:col-span-2">
               Preparar rascunho
             </button>
           </form>
         </section>
       )}
 
-      <section className="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <section className="overflow-x-auto surface-card">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
             <tr>

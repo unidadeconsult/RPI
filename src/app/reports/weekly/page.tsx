@@ -74,13 +74,13 @@ export default async function WeeklyReportPage({
           <EditionSelect editions={editions} selectedEditionId={selectedEditionId} />
           <a
             href={`/api/reports/weekly/pdf?rpiEditionId=${selectedEditionId}`}
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+            className="btn-secondary"
           >
             Baixar PDF
           </a>
           <a
             href={`/api/reports/weekly/excel?rpiEditionId=${selectedEditionId}`}
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+            className="btn-secondary"
           >
             Baixar Excel
           </a>
@@ -92,7 +92,7 @@ export default async function WeeklyReportPage({
         {statCards.map((card) => (
           <div
             key={card.label}
-            className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 print:border-slate-300"
+            className="surface-card p-4"
           >
             <p className="text-2xl font-semibold">{card.value}</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">{card.label}</p>
@@ -100,7 +100,7 @@ export default async function WeeklyReportPage({
         ))}
       </section>
 
-      <section className="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 print:border-slate-300">
+      <section className="overflow-x-auto surface-card">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
             <tr>
@@ -127,22 +127,22 @@ export default async function WeeklyReportPage({
       </section>
 
       <section className="grid grid-cols-1 gap-4 print:hidden lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div className="surface-card p-4">
           <h2 className="font-semibold">Resumo para WhatsApp</h2>
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Copie e cole manualmente — nada é enviado automaticamente.</p>
           <textarea
             readOnly
             value={whatsapp}
-            className="mt-3 h-40 w-full resize-none rounded-md border border-slate-300 bg-slate-50 p-2 text-sm dark:border-slate-700 dark:bg-slate-950"
+            className="mt-3 h-40 w-full resize-none field"
           />
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div className="surface-card p-4">
           <h2 className="font-semibold">Texto para e-mail</h2>
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Copie e cole manualmente — nada é enviado automaticamente.</p>
           <textarea
             readOnly
             value={email}
-            className="mt-3 h-40 w-full resize-none rounded-md border border-slate-300 bg-slate-50 p-2 text-sm dark:border-slate-700 dark:bg-slate-950"
+            className="mt-3 h-40 w-full resize-none field"
           />
         </div>
       </section>

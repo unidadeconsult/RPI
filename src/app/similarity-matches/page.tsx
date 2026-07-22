@@ -62,8 +62,8 @@ export default async function SimilarityMatchesPage({
             href={`/similarity-matches?status=${s}${monitoredTrademarkId ? `&monitoredTrademarkId=${monitoredTrademarkId}` : ""}`}
             className={`rounded-full px-3 py-1 text-xs ${
               statusFilter === s
-                ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-                : "border border-slate-300 dark:border-slate-700"
+                ? "pill-active"
+                : "pill"
             }`}
           >
             {SIMILARITY_STATUS_LABELS[s]}
@@ -71,7 +71,7 @@ export default async function SimilarityMatchesPage({
         ))}
       </div>
 
-      <section className="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <section className="overflow-x-auto surface-card">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
             <tr>
@@ -125,7 +125,7 @@ export default async function SimilarityMatchesPage({
                         name="notes"
                         rows={2}
                         placeholder="Observações (opcional)"
-                        className="rounded-md border border-slate-300 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-950"
+                        className="field text-xs"
                       />
                       <div className="flex gap-2">
                         <button
@@ -140,7 +140,7 @@ export default async function SimilarityMatchesPage({
                           type="submit"
                           name="status"
                           value="FALSO_POSITIVO"
-                          className="rounded-md border border-slate-300 px-2 py-1 text-xs hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+                          className="btn-secondary"
                         >
                           Falso positivo
                         </button>

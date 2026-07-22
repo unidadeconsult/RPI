@@ -74,7 +74,7 @@ export default async function PublicationDetailPage({
           <div className="flex items-center gap-3">
             <Link
               href={`/tasks?publicationId=${publication.id}`}
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+              className="btn-secondary"
             >
               Criar tarefa
             </Link>
@@ -82,7 +82,7 @@ export default async function PublicationDetailPage({
               <input type="hidden" name="publicationId" value={publication.id} />
               <button
                 type="submit"
-                className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+                className="btn-secondary"
               >
                 {publication.reviewStatus === "REVISADO"
                   ? "Marcar como não revisado"
@@ -95,7 +95,7 @@ export default async function PublicationDetailPage({
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Lado esquerdo: dados interpretados pelo sistema */}
-        <section className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <section className="flex flex-col gap-4 surface-card p-6">
           <h2 className="font-semibold">Dados interpretados</h2>
 
           <form
@@ -110,7 +110,7 @@ export default async function PublicationDetailPage({
                 name="category"
                 defaultValue={publication.category}
                 disabled={!canEdit}
-                className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="field"
               >
                 {DISPATCH_CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -131,7 +131,7 @@ export default async function PublicationDetailPage({
                 name="subcategory"
                 defaultValue={publication.subcategory ?? ""}
                 disabled={!canEdit}
-                className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="field"
               />
             </Field>
 
@@ -147,7 +147,7 @@ export default async function PublicationDetailPage({
                 defaultValue={publication.definedProvidence ?? ""}
                 disabled={!canEdit}
                 rows={2}
-                className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="field"
                 placeholder="Ainda não definida"
               />
             </Field>
@@ -157,7 +157,7 @@ export default async function PublicationDetailPage({
                 name="responsibleUserId"
                 defaultValue={publication.responsibleUserId ?? ""}
                 disabled={!canEdit}
-                className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="field"
               >
                 <option value="">Sem responsável definido</option>
                 {users.map((u) => (
@@ -174,14 +174,14 @@ export default async function PublicationDetailPage({
                 defaultValue={publication.notes ?? ""}
                 disabled={!canEdit}
                 rows={3}
-                className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="field"
               />
             </Field>
 
             {canEdit && (
               <button
                 type="submit"
-                className="self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900"
+                className="self-start btn-primary"
               >
                 Salvar alterações
               </button>
@@ -259,7 +259,7 @@ export default async function PublicationDetailPage({
                     name="eventLabel"
                     placeholder="Evento inicial (ex.: publicação do despacho)"
                     required
-                    className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                    className="field"
                   />
                   <div className="flex gap-2">
                     <input
@@ -268,12 +268,12 @@ export default async function PublicationDetailPage({
                       placeholder="Dias"
                       required
                       min={0}
-                      className="w-24 rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                      className="w-24 field"
                     />
                     <select
                       name="countingType"
                       defaultValue="CORRIDOS"
-                      className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                      className="field"
                     >
                       <option value="CORRIDOS">Dias corridos</option>
                       <option value="UTEIS">Dias úteis</option>
@@ -281,7 +281,7 @@ export default async function PublicationDetailPage({
                   </div>
                   <button
                     type="submit"
-                    className="self-start rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900"
+                    className="self-start btn-primary"
                   >
                     Calcular prazo sugerido
                   </button>
@@ -292,7 +292,7 @@ export default async function PublicationDetailPage({
         </section>
 
         {/* Lado direito: publicacao original */}
-        <section className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <section className="flex flex-col gap-4 surface-card p-6">
           <h2 className="font-semibold">Publicação original</h2>
 
           <div className="grid grid-cols-2 gap-3 text-sm">

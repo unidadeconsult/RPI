@@ -18,7 +18,7 @@ export function EditionSelect({
         name="rpiEditionId"
         defaultValue={selectedEditionId}
         onChange={(e) => router.push(`/reports/weekly?rpiEditionId=${e.target.value}`)}
-        className="rounded-md border border-slate-300 px-2 py-1.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        className="field"
       >
         {editions.map((e) => (
           <option key={e.id} value={e.id}>
@@ -35,7 +35,7 @@ export function PrintButton() {
     <button
       type="button"
       onClick={() => window.print()}
-      className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900"
+      className="btn-primary"
     >
       Imprimir
     </button>

@@ -30,13 +30,13 @@ export default async function DispatchRulesPage() {
       </header>
 
       {isAdmin && (
-        <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <section className="surface-card p-6">
           <h2 className="font-semibold">Cadastrar nova regra</h2>
           <DispatchRuleForm />
         </section>
       )}
 
-      <section className="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <section className="overflow-x-auto surface-card">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
             <tr>
@@ -155,7 +155,7 @@ function DispatchRuleForm({
           required
           readOnly={Boolean(code)}
           defaultValue={code ?? ""}
-          className="rounded-md border border-slate-300 px-2 py-1.5 font-mono text-sm dark:border-slate-700 dark:bg-slate-950"
+          className="field font-mono"
           placeholder="ex.: I029"
         />
       </label>
@@ -165,7 +165,7 @@ function DispatchRuleForm({
           type="text"
           name="officialDescription"
           defaultValue={officialDescription ?? ""}
-          className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+          className="field"
         />
       </label>
       <label className="flex flex-col gap-1 text-sm">
@@ -174,7 +174,7 @@ function DispatchRuleForm({
           name="mainCategory"
           defaultValue={rule?.mainCategory ?? ""}
           required
-          className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+          className="field"
         >
           <option value="" disabled>
             Selecione
@@ -192,7 +192,7 @@ function DispatchRuleForm({
           type="text"
           name="subcategory"
           defaultValue={rule?.subcategory ?? ""}
-          className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+          className="field"
         />
       </label>
       <label className="flex flex-col gap-1 text-sm sm:col-span-2">
@@ -201,7 +201,7 @@ function DispatchRuleForm({
           name="suggestedProvidence"
           rows={2}
           defaultValue={rule?.suggestedProvidence ?? ""}
-          className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+          className="field"
         />
       </label>
       <label className="flex flex-col gap-1 text-sm">
@@ -209,7 +209,7 @@ function DispatchRuleForm({
         <select
           name="urgencyLevel"
           defaultValue={rule?.urgencyLevel ?? "MEDIA"}
-          className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+          className="field"
         >
           {URGENCY_LEVELS.map((u) => (
             <option key={u} value={u}>
@@ -229,7 +229,7 @@ function DispatchRuleForm({
           name="deadlineRuleDescription"
           defaultValue={rule?.deadlineRuleDescription ?? ""}
           placeholder="ex.: 60 dias corridos da publicação"
-          className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+          className="field"
         />
       </label>
       <label className="flex flex-col gap-1 text-sm sm:col-span-2">
@@ -238,7 +238,7 @@ function DispatchRuleForm({
           type="text"
           name="requiredDocuments"
           defaultValue={rule?.requiredDocuments ?? ""}
-          className="rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+          className="field"
         />
       </label>
       <label className="flex items-center gap-2 text-sm">
@@ -247,7 +247,7 @@ function DispatchRuleForm({
       </label>
       <button
         type="submit"
-        className="self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 sm:col-span-2 dark:bg-slate-100 dark:text-slate-900"
+        className="self-start btn-primary sm:col-span-2"
       >
         Salvar regra
       </button>

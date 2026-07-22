@@ -137,7 +137,7 @@ export default async function ProceedingHistoryPage({
         />
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+      <section className="surface-card p-6">
         <h2 className="font-semibold">Linha do tempo</h2>
         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
           Mostra apenas as publicações efetivamente encontradas para este processo, em
@@ -179,7 +179,7 @@ export default async function ProceedingHistoryPage({
       </section>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div className="surface-card p-4">
           <div className="flex items-center justify-between">
             <p className="font-medium">Documentos</p>
             <Link
@@ -205,7 +205,7 @@ export default async function ProceedingHistoryPage({
         <EmptyModuleCard title="Tarefas" count={proceeding.tasks.length} />
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+      <section className="surface-card p-6">
         <h2 className="font-semibold">Histórico de alterações</h2>
         <ul className="mt-3 flex flex-col gap-2 text-sm">
           {auditLogs.map((log) => (
@@ -229,7 +229,7 @@ export default async function ProceedingHistoryPage({
 
 function SummaryStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+    <div className="surface-card p-3">
       <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
       <p className="mt-1 text-sm font-semibold">{value}</p>
     </div>

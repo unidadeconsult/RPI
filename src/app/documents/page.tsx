@@ -37,7 +37,7 @@ export default async function DocumentsPage({
       </header>
 
       {canEdit && (
-        <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <section className="surface-card p-6">
           <h2 className="font-semibold">Enviar documento</h2>
           {context && (
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -51,11 +51,11 @@ export default async function DocumentsPage({
             {taskId && <input type="hidden" name="taskId" value={taskId} />}
             <label className="flex flex-col gap-1 text-sm sm:col-span-2">
               Nome
-              <input type="text" name="name" required className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950" />
+              <input type="text" name="name" required className="field" />
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Tipo
-              <select name="type" defaultValue="DIVERSO" className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950">
+              <select name="type" defaultValue="DIVERSO" className="field">
                 {DOCUMENT_TYPES.map((t) => (
                   <option key={t} value={t}>
                     {DOCUMENT_TYPE_LABELS[t]}
@@ -69,12 +69,12 @@ export default async function DocumentsPage({
                 type="text"
                 name="processNumber"
                 defaultValue={context?.processNumber ?? ""}
-                className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950"
+                className="field"
               />
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Cliente (opcional)
-              <select name="clientId" defaultValue={clientId ?? ""} className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950">
+              <select name="clientId" defaultValue={clientId ?? ""} className="field">
                 <option value="">Nenhum</option>
                 {clients.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -85,24 +85,24 @@ export default async function DocumentsPage({
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Origem
-              <input type="text" name="origin" placeholder="ex.: enviado pelo cliente" className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950" />
+              <input type="text" name="origin" placeholder="ex.: enviado pelo cliente" className="field" />
             </label>
             <label className="flex flex-col gap-1 text-sm sm:col-span-2">
               Descrição
-              <textarea name="description" rows={2} className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950" />
+              <textarea name="description" rows={2} className="field" />
             </label>
             <label className="flex flex-col gap-1 text-sm sm:col-span-2">
               Arquivo
               <input type="file" name="file" required className="text-sm" />
             </label>
-            <button type="submit" className="self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 sm:col-span-2 dark:bg-slate-100 dark:text-slate-900">
+            <button type="submit" className="self-start btn-primary sm:col-span-2">
               Enviar
             </button>
           </form>
         </section>
       )}
 
-      <section className="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <section className="overflow-x-auto surface-card">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
             <tr>

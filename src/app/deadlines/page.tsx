@@ -55,7 +55,7 @@ export default async function DeadlinesPage() {
         </p>
       </header>
 
-      <section className="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <section className="overflow-x-auto surface-card">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
             <tr>
@@ -134,7 +134,7 @@ export default async function DeadlinesPage() {
                                 ? new Date(deadline.suggestedDate).toISOString().slice(0, 10)
                                 : ""
                             }
-                            className="rounded-md border border-slate-300 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-950"
+                            className="field text-xs"
                           />
                         </label>
                         <label className="flex flex-col gap-1 text-xs">
@@ -142,18 +142,18 @@ export default async function DeadlinesPage() {
                           <input
                             type="date"
                             name="internalDate"
-                            className="rounded-md border border-slate-300 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-950"
+                            className="field text-xs"
                           />
                         </label>
                         <textarea
                           name="notes"
                           placeholder="Observações"
                           rows={2}
-                          className="rounded-md border border-slate-300 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-950"
+                          className="field text-xs"
                         />
                         <button
                           type="submit"
-                          className="self-start rounded-md bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900"
+                          className="self-start btn-primary"
                         >
                           Confirmar
                         </button>

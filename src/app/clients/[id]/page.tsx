@@ -39,7 +39,7 @@ export default async function ClientDetailPage({
         </p>
       </header>
 
-      <section className="grid grid-cols-2 gap-4 rounded-xl border border-slate-200 bg-white p-6 sm:grid-cols-3 dark:border-slate-800 dark:bg-slate-900">
+      <section className="grid grid-cols-2 gap-4 surface-card p-6 sm:grid-cols-3">
         <InfoItem label="Telefone" value={client.phone ?? "—"} />
         <InfoItem label="WhatsApp" value={client.whatsapp ?? "—"} />
         <InfoItem label="E-mail" value={client.email ?? "—"} />
@@ -48,7 +48,7 @@ export default async function ClientDetailPage({
         <InfoItem label="Observações" value={client.notes ?? "—"} />
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+      <section className="surface-card p-6">
         <h2 className="font-semibold">Processos e marcas relacionadas</h2>
         <ul className="mt-3 flex flex-col gap-2 text-sm">
           {client.clientProcesses.map((cp) => (
@@ -81,7 +81,7 @@ export default async function ClientDetailPage({
       </section>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div className="surface-card p-4">
           <div className="flex items-center justify-between">
             <p className="font-medium">Documentos</p>
             <Link

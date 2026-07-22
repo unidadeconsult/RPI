@@ -75,9 +75,9 @@ export function EventChip({ event, expanded }: { event: UnifiedEvent; expanded?:
                 type="date"
                 name="date"
                 required
-                className="rounded-md border border-slate-300 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-950"
+                className="field text-xs"
               />
-              <button type="submit" className="rounded-md bg-slate-900 px-2 py-1 text-xs text-white dark:bg-slate-100 dark:text-slate-900">
+              <button type="submit" className="btn-primary">
                 Salvar
               </button>
             </form>

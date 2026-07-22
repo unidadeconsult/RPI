@@ -252,7 +252,7 @@ function FileCard({
     comparison !== null &&
     (comparison.addedCount > 0 || comparison.removedCount > 0 || comparison.changedCount > 0);
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+    <div className="surface-card p-5">
       <div className="flex items-center justify-between">
         <div>
           <p className="font-medium">{managed.file.name}</p>
@@ -299,7 +299,7 @@ function FileCard({
                 type="text"
                 value={managed.rpiNumber}
                 onChange={(e) => onFieldChange(managed.id, "rpiNumber", e.target.value)}
-                className="rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="field"
                 placeholder="ex.: 2888"
               />
               {managed.preview.detectedRpiNumber && (
@@ -314,7 +314,7 @@ function FileCard({
                 type="date"
                 value={managed.rpiDate}
                 onChange={(e) => onFieldChange(managed.id, "rpiDate", e.target.value)}
-                className="rounded-md border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="field"
               />
               <span className="text-xs text-slate-500 dark:text-slate-400">
                 O arquivo não declara a data oficial — informe manualmente.
@@ -402,7 +402,7 @@ function FileCard({
                 (requiresCorrectionReview && !managed.correctionReviewed)
               }
               onClick={() => onConfirm(managed)}
-              className="self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900"
+              className="self-start btn-primary disabled:opacity-50"
             >
               {managed.status === "IMPORTANDO" ? "Importando..." : "Confirmar importação"}
             </button>

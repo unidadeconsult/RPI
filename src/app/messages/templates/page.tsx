@@ -34,16 +34,16 @@ export default async function MessageTemplatesPage() {
       </header>
 
       {isAdmin && (
-        <section className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        <section className="surface-card p-6">
           <h2 className="font-semibold">Novo modelo</h2>
           <form action={upsertMessageTemplate} className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1 text-sm sm:col-span-2">
               Nome
-              <input type="text" name="name" required className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950" />
+              <input type="text" name="name" required className="field" />
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Canal
-              <select name="channel" defaultValue="EMAIL" className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950">
+              <select name="channel" defaultValue="EMAIL" className="field">
                 {MESSAGE_CHANNELS.map((c) => (
                   <option key={c} value={c}>
                     {MESSAGE_CHANNEL_LABELS[c]}
@@ -53,7 +53,7 @@ export default async function MessageTemplatesPage() {
             </label>
             <label className="flex flex-col gap-1 text-sm">
               Categoria
-              <select name="category" defaultValue={MESSAGE_CATEGORIES[0]} className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950">
+              <select name="category" defaultValue={MESSAGE_CATEGORIES[0]} className="field">
                 {MESSAGE_CATEGORIES.map((c) => (
                   <option key={c} value={c}>
                     {MESSAGE_CATEGORY_LABELS[c]}
@@ -63,9 +63,9 @@ export default async function MessageTemplatesPage() {
             </label>
             <label className="flex flex-col gap-1 text-sm sm:col-span-2">
               Texto do modelo
-              <textarea name="bodyTemplate" rows={4} required className="rounded-md border border-slate-300 px-2 py-1.5 font-mono text-xs dark:border-slate-700 dark:bg-slate-950" />
+              <textarea name="bodyTemplate" rows={4} required className="field font-mono text-xs" />
             </label>
-            <button type="submit" className="self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 sm:col-span-2 dark:bg-slate-100 dark:text-slate-900">
+            <button type="submit" className="self-start btn-primary sm:col-span-2">
               Salvar modelo
             </button>
           </form>
@@ -74,7 +74,7 @@ export default async function MessageTemplatesPage() {
 
       <section className="flex flex-col gap-4">
         {templates.map((template) => (
-          <details key={template.id} className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+          <details key={template.id} className="surface-card p-4">
             <summary className="cursor-pointer font-medium">
               {template.name} — {MESSAGE_CHANNEL_LABELS[template.channel]} —{" "}
               {MESSAGE_CATEGORY_LABELS[template.category]}
@@ -84,11 +84,11 @@ export default async function MessageTemplatesPage() {
                 <input type="hidden" name="templateId" value={template.id} />
                 <label className="flex flex-col gap-1 text-sm sm:col-span-2">
                   Nome
-                  <input type="text" name="name" defaultValue={template.name} required className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950" />
+                  <input type="text" name="name" defaultValue={template.name} required className="field" />
                 </label>
                 <label className="flex flex-col gap-1 text-sm">
                   Canal
-                  <select name="channel" defaultValue={template.channel} className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950">
+                  <select name="channel" defaultValue={template.channel} className="field">
                     {MESSAGE_CHANNELS.map((c) => (
                       <option key={c} value={c}>
                         {MESSAGE_CHANNEL_LABELS[c]}
@@ -98,7 +98,7 @@ export default async function MessageTemplatesPage() {
                 </label>
                 <label className="flex flex-col gap-1 text-sm">
                   Categoria
-                  <select name="category" defaultValue={template.category} className="rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-950">
+                  <select name="category" defaultValue={template.category} className="field">
                     {MESSAGE_CATEGORIES.map((c) => (
                       <option key={c} value={c}>
                         {MESSAGE_CATEGORY_LABELS[c]}
@@ -112,10 +112,10 @@ export default async function MessageTemplatesPage() {
                     name="bodyTemplate"
                     rows={4}
                     defaultValue={template.bodyTemplate}
-                    className="rounded-md border border-slate-300 px-2 py-1.5 font-mono text-xs dark:border-slate-700 dark:bg-slate-950"
+                    className="field font-mono text-xs"
                   />
                 </label>
-                <button type="submit" className="self-start rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 sm:col-span-2 dark:bg-slate-100 dark:text-slate-900">
+                <button type="submit" className="self-start btn-primary sm:col-span-2">
                   Salvar alterações
                 </button>
               </form>
