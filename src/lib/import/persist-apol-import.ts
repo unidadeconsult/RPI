@@ -5,6 +5,7 @@ import type { PrismaClient } from "@/generated/prisma/client";
 import type { ApolPdfRecord } from "@/lib/parser/apol-pdf-parser";
 import { classifyDispatchCode, type DispatchRuleLookup } from "@/lib/parser/dispatch-classifier";
 import { buildPublicationDraft, renderSourceExcerpt } from "./build-publication-draft";
+import { scanPublicationsForSimilarity } from "@/lib/similarity/run-similarity-scan";
 
 const STORAGE_ROOT = path.resolve(process.cwd(), "storage", "rpi-files");
 
@@ -124,6 +125,7 @@ export async function persistApolImport(
     let totalLocalizacaoNaoConfirmada = 0;
     let totalCodigosDesconhecidos = 0;
     let publicationsSkippedAsDuplicate = 0;
+    const newPublicationIds: string[] = [];
 
     for (const draft of drafts) {
       const alreadyExists = await tx.publication.findUnique({
@@ -208,6 +210,7 @@ export async function persistApolImport(
           importedById: params.uploadedByUserId,
         },
       });
+      newPublicationIds.push(publication.id);
 
       for (const holder of draft.holders) {
         await tx.party.create({
@@ -268,12 +271,17 @@ export async function persistApolImport(
       totalLocalizacaoNaoConfirmada,
       totalCodigosDesconhecidos,
       publicationsSkippedAsDuplicate,
+      newPublicationIds,
     };
   });
 
+  await scanPublicationsForSimilarity(prisma, result.newPublicationIds);
+
+  const { newPublicationIds: _newPublicationIds, ...publicResult } = result;
+
   return {
     status: "IMPORTADO",
-    ...result,
+    ...publicResult,
     totalRecordsParsed: params.records.length,
   };
 }

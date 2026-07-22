@@ -157,6 +157,18 @@ export default async function DashboardHomePage({
             Painel gerencial
           </Link>
           <Link
+            href="/similarity-matches"
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+          >
+            Marcas semelhantes
+          </Link>
+          <Link
+            href="/monitored-trademarks"
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+          >
+            Monitorar marcas
+          </Link>
+          <Link
             href="/import"
             className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900"
           >

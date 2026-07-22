@@ -75,7 +75,7 @@ export default async function ManagementPage() {
         <StatCard
           label="Marcas semelhantes relevantes"
           value={data.similarityRelevantCount}
-          note="Monitoramento de marcas semelhantes ainda não implementado — número honesto até a próxima fase."
+          href="/similarity-matches?status=RELEVANTE"
         />
       </section>
 
