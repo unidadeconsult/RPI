@@ -109,6 +109,12 @@ export default async function DashboardHomePage({
         </div>
         <div className="flex items-center gap-3">
           <Link
+            href="/search"
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+          >
+            Pesquisa
+          </Link>
+          <Link
             href="/clients"
             className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
           >
