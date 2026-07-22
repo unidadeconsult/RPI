@@ -121,6 +121,12 @@ export default async function DashboardHomePage({
             Regras de despacho
           </Link>
           <Link
+            href="/attorney-name-aliases"
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
+          >
+            Variações do nome
+          </Link>
+          <Link
             href="/clients"
             className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900"
           >

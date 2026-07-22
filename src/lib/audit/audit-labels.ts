@@ -34,6 +34,8 @@ const AUDIT_ACTION_LABELS: Record<string, string> = {
   REVIEW_SIMILARITY_MATCH: "Semelhança de marca revisada",
   CREATE_DISPATCH_RULE: "Regra de despacho cadastrada",
   UPDATE_DISPATCH_RULE: "Regra de despacho atualizada",
+  CREATE_ATTORNEY_NAME_ALIAS: "Variação de nome cadastrada",
+  TOGGLE_ATTORNEY_NAME_ALIAS_ACTIVE: "Variação de nome ativada/desativada",
 };
 
 export function describeAuditAction(action: string): string {
@@ -54,6 +56,7 @@ const ENTITY_ROUTE_BUILDERS: Record<string, (entityId: string) => string> = {
   SimilarityMatch: () => `/similarity-matches?status=NOVO`,
   CalendarEvent: () => `/calendar`,
   DispatchRule: () => `/dispatch-rules`,
+  AttorneyNameAlias: () => `/attorney-name-aliases`,
 };
 
 /** Retorna um link para o registro afetado, quando existe uma tela de destino conhecida. */
