@@ -178,7 +178,29 @@ export default async function ProceedingHistoryPage({
       </section>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <EmptyModuleCard title="Documentos" count={proceeding.documents.length} />
+        <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center justify-between">
+            <p className="font-medium">Documentos</p>
+            <Link
+              href={`/documents?proceedingId=${proceeding.id}`}
+              className="text-xs text-blue-600 underline hover:text-blue-800 dark:text-blue-400"
+            >
+              Enviar documento
+            </Link>
+          </div>
+          <ul className="mt-2 flex flex-col gap-1 text-sm">
+            {proceeding.documents.map((doc) => (
+              <li key={doc.id}>
+                <Link href={`/documents/${doc.id}`} className="text-blue-600 underline hover:text-blue-800 dark:text-blue-400">
+                  {doc.name}
+                </Link>
+              </li>
+            ))}
+            {proceeding.documents.length === 0 && (
+              <li className="text-slate-500 dark:text-slate-400">Nenhum documento enviado ainda.</li>
+            )}
+          </ul>
+        </div>
         <EmptyModuleCard title="Tarefas" count={proceeding.tasks.length} />
       </div>
 

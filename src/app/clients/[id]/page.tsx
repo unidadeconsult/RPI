@@ -81,13 +81,28 @@ export default async function ClientDetailPage({
       </section>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-          <p className="font-medium text-slate-700 dark:text-slate-300">Documentos</p>
-          <p className="mt-1">
-            {client.documents.length > 0
-              ? `${client.documents.length} documento(s)`
-              : "Nenhum documento — módulo de documentos ainda em construção."}
-          </p>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center justify-between">
+            <p className="font-medium">Documentos</p>
+            <Link
+              href={`/documents?clientId=${client.id}`}
+              className="text-xs text-blue-600 underline hover:text-blue-800 dark:text-blue-400"
+            >
+              Enviar documento
+            </Link>
+          </div>
+          <ul className="mt-2 flex flex-col gap-1 text-sm">
+            {client.documents.map((doc) => (
+              <li key={doc.id}>
+                <Link href={`/documents/${doc.id}`} className="text-blue-600 underline hover:text-blue-800 dark:text-blue-400">
+                  {doc.name}
+                </Link>
+              </li>
+            ))}
+            {client.documents.length === 0 && (
+              <li className="text-slate-500 dark:text-slate-400">Nenhum documento enviado ainda.</li>
+            )}
+          </ul>
         </div>
         <div className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
           <p className="font-medium text-slate-700 dark:text-slate-300">Histórico de contato</p>
