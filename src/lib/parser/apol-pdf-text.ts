@@ -1,3 +1,7 @@
+// Precisa ser o primeiro import -- ver o comentario dentro do arquivo.
+// Modulos ES avaliam imports na ordem em que aparecem, entao isso garante
+// que DOMMatrix/Path2D existam em globalThis antes do pdfjs-dist carregar.
+import "./pdfjs-node-polyfills";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { WorkerMessageHandler } from "pdfjs-dist/legacy/build/pdf.worker.mjs";
 
