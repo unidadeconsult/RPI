@@ -1,4 +1,16 @@
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { WorkerMessageHandler } from "pdfjs-dist/legacy/build/pdf.worker.mjs";
+
+// Em Node.js o pdfjs-dist roda o parsing na mesma thread ("fake worker"),
+// mas por padrao ele tenta localizar o arquivo pdf.worker.mjs via um
+// import() dinamico relativo ao caminho do modulo em tempo de execucao --
+// isso quebra quando o Next.js empacota o codigo em chunks (o arquivo
+// fisico do worker nao fica mais no caminho esperado). Registrando o
+// handler aqui via import estatico (que o bundler resolve normalmente),
+// o pdfjs-dist usa esse handler direto e nunca tenta o import() dinamico.
+(globalThis as unknown as { pdfjsWorker?: { WorkerMessageHandler: typeof WorkerMessageHandler } }).pdfjsWorker = {
+  WorkerMessageHandler,
+};
 
 /**
  * Item de texto posicionado extraido de uma pagina do PDF, com a fonte
