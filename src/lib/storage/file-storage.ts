@@ -15,8 +15,11 @@ const LOCAL_STORAGE_ROOT = path.resolve(process.cwd(), "storage");
 export async function saveFile(folder: string, filename: string, buffer: Buffer): Promise<string> {
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     const { put } = await import("@vercel/blob");
+    // "private" -- documentos de clientes (procurações, RG, CNPJ) tem
+    // dados pessoais e nao podem ficar acessiveis por qualquer pessoa que
+    // descubra a URL. Leitura exige o token do servidor (ver loadFile).
     const blob = await put(`${folder}/${filename}`, buffer, {
-      access: "public",
+      access: "private",
       addRandomSuffix: false,
     });
     return blob.url;
@@ -31,6 +34,15 @@ export async function saveFile(folder: string, filename: string, buffer: Buffer)
 
 export async function loadFile(reference: string): Promise<Buffer> {
   if (reference.startsWith("http://") || reference.startsWith("https://")) {
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const { get } = await import("@vercel/blob");
+      const result = await get(reference, { access: "private" });
+      if (!result?.stream) {
+        throw new Error("Arquivo não encontrado no armazenamento.");
+      }
+      return Buffer.from(await new Response(result.stream).arrayBuffer());
+    }
+
     const response = await fetch(reference);
     if (!response.ok) {
       throw new Error("Arquivo não encontrado no armazenamento.");
